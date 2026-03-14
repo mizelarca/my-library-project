@@ -1,0 +1,122 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1 class="text-center mb-4">{{ title }}</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label for="{{ form.title.id_for_label }}" class="form-label">Название книги</label>
+            {{ form.title }}
+        </div>
+
+        <div class="mb-3 row">
+            <div class="col-10">
+                <label for="{{ form.author.id_for_label }}" class="form-label">Автор</label>
+                {{ form.author }}
+            </div>
+            <div class="col-2 d-flex align-items-end">
+                <a href="{% url 'author_add' %}?next=book_add" class="btn btn-sm btn-outline-primary w-100">Новый автор</a>
+            </div>
+        </div>
+
+        <div class="mb-3 row">
+            <div class="col-10">
+                <label for="{{ form.genre.id_for_label }}" class="form-label">Жанр</label>
+                {{ form.genre }}
+            </div>
+            <div class="col-2 d-flex align-items-end">
+                <a href="{% url 'genre_add' %}?next=book_add" class="btn btn-sm btn-outline-primary w-100">Новый жанр</a>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.status.id_for_label }}" class="form-label">Статус</label>
+            {{ form.status }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.cover_image.id_for_label }}" class="form-label">Обложка</label>
+            {{ form.cover_image }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.description.id_for_label }}" class="form-label">Описание</label>
+            {{ form.description }}
+        </div>
+
+        <!-- Поле рейтинга -->
+        <div class="mb-3">
+            <label class="form-label">Оценка</label>
+            <div class="rating-input">
+                <input type="hidden" name="rating" id="rating" value="{{ form.rating.value|default:0 }}">
+                <span class="star" data-value="1">★</span>
+                <span class="star" data-value="2">★</span>
+                <span class="star" data-value="3">★</span>
+                <span class="star" data-value="4">★</span>
+                <span class="star" data-value="5">★</span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <a href="{% url 'book_list' %}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+
+<!-- Стили для звёзд (если ещё не добавлены) -->
+<style>
+    .rating-input {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+    .rating-input .star {
+        font-size: 2rem;
+        cursor: pointer;
+        color: #ccc;
+        transition: color 0.2s;
+        margin-right: 0.2rem;
+    }
+    .rating-input .star.selected {
+        color: #ffc107;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const stars = document.querySelectorAll('.rating-input .star');
+        const hiddenInput = document.getElementById('rating');
+        let currentRating = parseInt(hiddenInput.value) || 0;
+
+        function updateStars(rating) {
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('selected');
+                } else {
+                    star.classList.remove('selected');
+                }
+            });
+        }
+
+        updateStars(currentRating);
+
+        stars.forEach((star, index) => {
+            star.addEventListener('click', function(e) {
+                const value = parseInt(this.dataset.value);
+                if (currentRating === value) {
+                    currentRating = 0;
+                } else {
+                    currentRating = value;
+                }
+                hiddenInput.value = currentRating;
+                updateStars(currentRating);
+            });
+        });
+    });
+</script>
+{% endblock %}

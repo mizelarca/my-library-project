@@ -1,0 +1,28 @@
+{% extends 'catalog/base.html' %}
+{% block title %}Добавить в коллекцию{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2>Добавить "{{ book.title }}" в коллекцию</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="collection" class="form-label">Выберите коллекцию</label>
+                <select name="collection_id" id="collection" class="form-select" required>
+                    <option value="">-- Выберите --</option>
+                    {% for collection in collections %}
+                        <option value="{{ collection.id }}" {% if selected == collection.id %}selected{% endif %}>
+                            {{ collection.name }} ({{ collection.books.count }} книг)
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Добавить</button>
+            <a href="{% url 'book_detail' book.id %}" class="btn btn-secondary">Отмена</a>
+        </form>
+        
+        <hr class="my-4">
+        <p>Нет подходящей коллекции? <a href="{% url 'collection_create' %}?next={% url 'add_book_to_collection' book.id %}">Создайте новую</a></p>
+    </div>
+</div>
+{% endblock %}

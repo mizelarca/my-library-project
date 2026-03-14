@@ -1,0 +1,15 @@
+{% extends 'catalog/base.html' %}
+{% block title %}Удаление коллекции{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2>Удалить коллекцию "{{ collection.name }}"?</h2>
+        <p>Это действие нельзя отменить.</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Удалить</button>
+            <a href="{% url 'collection_detail' collection.id %}" class="btn btn-secondary">Отмена</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

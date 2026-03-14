@@ -1,0 +1,64 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Мои книги{% endblock %}
+
+{% block content %}
+<h1 class="display-4">Мои книги</h1>
+
+<a href="{% url 'book_add' %}" class="btn btn-success mb-3 text-white pulse">Добавить книгу</a>
+
+{% if books %}
+    <div class="row">
+        {% for book in books %}
+            <div class="col-md-3 col-lg-2 mb-4 card-item">
+                <div class="card h-100">
+                    <a href="{% url 'book_detail' book.id %}" class="stretched-link"></a>
+                    {% if book.cover_image %}
+                        <img src="{{ book.cover_image.url }}" class="card-img-top" alt="{{ book.title }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/150x200?text=No+Cover" class="card-img-top" alt="No cover">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ book.title|truncatechars:30 }}</h5>
+                        <p class="card-text">
+                            <strong>Автор:</strong> {{ book.author.name|truncatechars:20 }}<br>
+                            <strong>Жанр:</strong> {{ book.genre.name|default:"—" }}<br>
+                            <strong>Статус:</strong> {{ book.status.get_name_display }}
+                        </p>
+                        <div class="rating-stars mb-2">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= book.rating %}
+                                    <span class="star-filled">★</span>
+                                {% else %}
+                                    <span class="star-empty">★</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <!-- Кнопка удаления с повышенным z-index -->
+                        <form method="post" action="{% url 'book_delete' book.id %}" class="d-inline" onsubmit="return confirm('Вы уверены, что хотите удалить книгу?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger position-relative" style="z-index: 2;">Удалить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>У вас пока нет книг.</p>
+{% endif %}
+
+<!-- Стили для звёзд -->
+<style>
+    .rating-stars {
+        margin-top: 0.5rem;
+        font-size: 1.2rem;
+    }
+    .star-filled {
+        color: #ffc107; /* жёлтый */
+    }
+    .star-empty {
+        color: #ccc; /* серый */
+    }
+</style>
+{% endblock %}

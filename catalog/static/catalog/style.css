@@ -1,0 +1,655 @@
+/* style.css - цветовая схема для диплома */
+
+:root {
+    /* Цвета из твоей палитры */
+    --bg-color: #efe9dd;       /* фон страниц (RGB 239,233,221) */
+    --secondary-bg: #e6d7c4;    /* светлый фон для карточек, иконок (RGB 230,215,196) */
+    --accent-light: #d1c4b3;    /* светлый акцент для второстепенных кнопок (RGB 209,196,179) */
+    --accent-primary: #797b3a;  /* основной зеленый для главных кнопок (RGB 137,144,100) */
+    --navbar-bg: #694633;       /* цвет верхней панели (RGB 105,70,51) */
+    
+    /* Дополнительные цвета (оставляем как есть) */
+    --text-color: #666;
+    --primary-dark: #3e2c1f;
+    --star-filled: #ffc107;
+    --star-empty: #ccc;
+}
+
+/* Общий фон страницы */
+body {
+    background-color: var(--bg-color);
+    font-family: 'Open Sans', sans-serif;
+    color: var(--text-color);
+}
+
+/* Верхняя навигационная панель */
+.navbar-dark.bg-dark {
+    background-color: var(--navbar-bg) !important;
+}
+
+/* Заголовки */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Great Vibes', cursive;
+    color: var(--primary-dark);
+}
+
+/* --- Кнопки --- */
+
+/* Основные яркие кнопки (Добавить книгу, Сохранить, Перейти в кабинет) */
+.btn-success,
+.btn-primary {
+    background-color: var(--accent-primary) !important;
+    border-color: var(--accent-primary) !important;
+    color: white !important;
+}
+.btn-success:hover,
+.btn-primary:hover {
+    background-color: #7a8057 !important; /* чуть темнее оттенок */
+    border-color: #7a8057 !important;
+}
+
+/* Второстепенные кнопки (Отмена, Новый автор, Новый жанр, Редактировать, Вход, Регистрация) */
+.btn-secondary,
+.btn-outline-primary,
+.btn-outline-secondary,
+.btn-sm {
+    background-color: var(--accent-light) !important;
+    border-color: var(--accent-light) !important;
+    color: #333 !important; /* тёмный текст для контраста */
+}
+.btn-secondary:hover,
+.btn-outline-primary:hover,
+.btn-outline-secondary:hover,
+.btn-sm:hover {
+    background-color: #c0b09c !important; /* чуть темнее */
+    border-color: #c0b09c !important;
+    color: #000 !important;
+}
+
+/* Кнопка "Редактировать" на детальной странице */
+.btn-primary {
+    background-color: var(--accent-primary) !important;
+}
+
+/* Кнопка "Выйти" (чтобы соответствовала второстепенным) */
+.nav-item form button {
+    background-color: transparent !important;
+    border: none !important;
+    color: rgba(255,255,255,.55) !important;
+}
+.nav-item form button:hover {
+    color: rgba(255,255,255,.75) !important;
+}
+
+/* --- Карточки книг и статистики --- */
+
+/* Карточки книг на странице "Мои книги" */
+.card {
+    background-color: var(--secondary-bg);
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+.card-title {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+    color: var(--primary-dark);
+}
+.card-text {
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+/* Карточка "Всего книг" в личном кабинете */
+.card.bg-primary {
+    background-color: var(--secondary-bg) !important;
+    border: 1px solid var(--accent-light);
+}
+.card.bg-primary .card-header {
+    background-color: var(--accent-light);
+    color: var(--primary-dark);
+    font-weight: bold;
+}
+.card.bg-primary .card-title {
+    color: var(--primary-dark) !important;
+    font-size: 2.5rem;
+}
+
+/* Карточка "Статистика по статусам" */
+.card .list-group-item {
+    background-color: var(--secondary-bg);
+    border-color: var(--accent-light);
+    color: var(--text-color);
+}
+
+/* --- Детальная страница книги --- */
+.book-detail-cover {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.book-detail-title {
+    font-size: 2.5rem;
+    color: var(--primary-dark);
+}
+
+/* --- Звёзды рейтинга --- */
+.rating-stars {
+    font-size: 1.2rem;
+    color: var(--star-empty);
+}
+.star-filled {
+    color: var(--star-filled);
+}
+.star-empty {
+    color: var(--star-empty);
+}
+
+/* Футер */
+footer.bg-light {
+    background-color: var(--bg-color) !important;
+    border-top: 1px solid var(--accent-light);
+}
+footer p {
+    color: var(--text-color);
+}
+
+/* === Стили для форм === */
+
+/* Контейнер формы (центрирование) */
+.form-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: var(--secondary-bg);
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* Поля ввода */
+.form-control, .form-select, textarea {
+    border: 1px solid var(--accent-light);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    background-color: white;
+}
+.form-control:focus, .form-select:focus, textarea:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 0.2rem rgba(137, 144, 100, 0.25);
+    outline: none;
+}
+
+/* Метки (labels) */
+.form-label {
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin-bottom: 0.5rem;
+}
+
+/* Кнопки в формах */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+.form-actions .btn {
+    flex: 1;
+    padding: 0.75rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+.form-actions .btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Стили для страниц входа/регистрации */
+.auth-card {
+    max-width: 450px;
+    margin: 3rem auto;
+    padding: 2.5rem;
+    background-color: var(--secondary-bg);
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+.auth-card h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2.2rem;
+}
+.auth-card .form-group {
+    margin-bottom: 1.5rem;
+}
+.auth-card .btn {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1.1rem;
+}
+
+/* === Стили для личного кабинета (dashboard) === */
+
+/* Карточка "Всего книг" */
+.stats-total-card {
+    background: linear-gradient(135deg, var(--secondary-bg) 0%, var(--accent-light) 100%);
+    border: none;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+.stats-total-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+.stats-total-card .card-header {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--primary-dark);
+    padding: 0 0 0.5rem 0;
+}
+.stats-total-card .card-body {
+    padding: 0;
+}
+.stats-total-number {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: var(--primary-dark);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+.stats-total-icon {
+    font-size: 3rem;
+    color: var(--accent-primary);
+    opacity: 0.8;
+}
+
+/* Карточка статистики по статусам */
+.stats-list-card {
+    background-color: var(--secondary-bg);
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+.stats-list-card .card-header {
+    background-color: var(--accent-light);
+    color: var(--primary-dark);
+    font-weight: 600;
+    font-size: 1.2rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 2px solid var(--accent-primary);
+}
+.stats-list-card .list-group-item {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid var(--accent-light);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 1.1rem;
+}
+.stats-list-card .list-group-item:last-child {
+    border-bottom: none;
+}
+.status-icon {
+    font-size: 1.4rem;
+    margin-right: 1rem;
+    color: var(--accent-primary);
+    width: 2rem;
+    text-align: center;
+}
+.status-name {
+    flex: 1;
+    color: var(--primary-dark);
+    font-weight: 500;
+}
+.status-count {
+    background-color: var(--accent-primary);
+    color: white;
+    font-weight: bold;
+    padding: 0.3rem 1rem;
+    border-radius: 30px;
+    min-width: 3rem;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Кнопка перехода к книгам */
+.dashboard-btn {
+    background-color: var(--accent-primary);
+    border: none;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1.2rem;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(137, 144, 100, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.dashboard-btn:hover {
+    background-color: #7a8057;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(137, 144, 100, 0.4);
+    color: white;
+}
+.dashboard-btn i {
+    font-size: 1.3rem;
+}
+
+/* === Анимации и плавные переходы === */
+
+/* Базовое появление контента */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+main {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* Появление карточек с задержкой (для страницы "Мои книги") */
+.card-item {
+    animation: fadeIn 0.5s ease-out;
+    animation-fill-mode: both;
+}
+
+/* Задержки для каждой карточки (можно регулировать количество) */
+.card-item:nth-child(1) { animation-delay: 0.1s; }
+.card-item:nth-child(2) { animation-delay: 0.2s; }
+.card-item:nth-child(3) { animation-delay: 0.3s; }
+.card-item:nth-child(4) { animation-delay: 0.4s; }
+.card-item:nth-child(5) { animation-delay: 0.5s; }
+.card-item:nth-child(6) { animation-delay: 0.6s; }
+.card-item:nth-child(7) { animation-delay: 0.7s; }
+.card-item:nth-child(8) { animation-delay: 0.8s; }
+.card-item:nth-child(9) { animation-delay: 0.9s; }
+.card-item:nth-child(10) { animation-delay: 1s; }
+
+/* Улучшенный hover для карточек (добавляем лёгкое свечение) */
+.card {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, background-color 0.3s ease;
+}
+.card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+
+/* Пульсация для главной кнопки (добавим класс .pulse) */
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 5px 15px rgba(137, 144, 100, 0.3); }
+    50% { transform: scale(1.05); box-shadow: 0 10px 25px rgba(137, 144, 100, 0.5); }
+    100% { transform: scale(1); box-shadow: 0 5px 15px rgba(137, 144, 100, 0.3); }
+}
+.pulse {
+    animation: pulse 2s infinite;
+}
+.pulse:hover {
+    animation: none; /* останавливаем пульсацию при наведении */
+}
+
+/* Анимация для звёзд в форме */
+.rating-input .star {
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+.rating-input .star:hover {
+    transform: scale(1.3) rotate(5deg);
+    color: #ffc107;
+}
+.rating-input .star.selected {
+    transform: scale(1.1);
+}
+
+/* Плавное изменение цвета фона навбара при скролле (опционально) */
+.navbar {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+.navbar.scrolled {
+    background-color: #4d3324 !important; /* чуть темнее цвет навбара */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* Анимация для кнопок (общая) */
+.btn {
+    transition: all 0.3s ease;
+}
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* === Навигация и футер === */
+
+/* Навбар с нашим цветом */
+.navbar {
+    background-color: var(--navbar-bg) !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 0.8rem 0;
+}
+.navbar-brand {
+    font-family: 'Great Vibes', cursive;
+    font-size: 1.8rem;
+    color: white !important;
+}
+.navbar-nav .nav-link {
+    color: rgba(255,255,255,0.85) !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.2s ease;
+    border-radius: 5px;
+    margin: 0 0.2rem;
+}
+.navbar-nav .nav-link:hover {
+    color: white !important;
+    background-color: rgba(255,255,255,0.1);
+    transform: translateY(-1px);
+}
+.navbar-nav .nav-link.active {
+    color: white !important;
+    background-color: rgba(255,255,255,0.2);
+    font-weight: 600;
+}
+.navbar-nav .nav-link i {
+    font-size: 1.2rem;
+    vertical-align: middle;
+}
+
+/* Кнопка выхода в навбаре */
+.navbar-nav form button {
+    color: rgba(255,255,255,0.85) !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.2s ease;
+    border-radius: 5px;
+    margin: 0 0.2rem;
+}
+.navbar-nav form button:hover {
+    color: white !important;
+    background-color: rgba(255,255,255,0.1);
+    transform: translateY(-1px);
+}
+
+/* Футер */
+.footer {
+    background-color: var(--secondary-bg);
+    border-top: 3px solid var(--accent-primary);
+    color: var(--text-color);
+}
+.footer a {
+    color: var(--primary-dark);
+    transition: color 0.2s ease, transform 0.2s ease;
+    display: inline-block;
+}
+.footer a:hover {
+    color: var(--accent-primary);
+    transform: translateY(-2px);
+}
+.footer i {
+    font-size: 1.5rem;
+}
+.footer hr {
+    border-color: var(--accent-light);
+    opacity: 0.5;
+}
+
+/* === Адаптация для мобильных устройств === */
+
+@media (max-width: 768px) {
+    /* Уменьшаем размер шрифта заголовков */
+    h1 {
+        font-size: 2rem;
+    }
+    .hero-title {
+        font-size: 3rem;
+    }
+    .hero-text {
+        font-size: 1.2rem;
+    }
+
+    /* Карточки книг: по 2 в ряд на планшетах */
+    .col-md-3.col-lg-2 {
+        width: 50%;
+    }
+
+    /* Отступы в формах */
+    .form-container {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+
+    /* Кнопки в формах: вертикально на мобильных */
+    .form-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .form-actions .btn {
+        width: 100%;
+    }
+
+    /* Навбар: уменьшаем отступы */
+    .navbar-brand {
+        font-size: 1.4rem;
+    }
+
+    /* Футер: текст по центру */
+    .footer .text-md-start,
+    .footer .text-md-end {
+        text-align: center !important;
+    }
+    .footer .col-md-6 {
+        margin-bottom: 1rem;
+    }
+
+    /* Таблица статистики: уменьшаем размер */
+    .stats-total-number {
+        font-size: 2.5rem;
+    }
+    .status-count {
+        padding: 0.2rem 0.8rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Карточки книг: по 1 в ряд на телефонах */
+    .col-md-3.col-lg-2 {
+        width: 100%;
+    }
+
+    /* Уменьшаем заголовки */
+    .hero-title {
+        font-size: 2.2rem;
+    }
+    .hero-text {
+        font-size: 1rem;
+    }
+
+    /* Карточка входа/регистрации */
+    .auth-card {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+
+    /* Кнопка выхода в навбаре */
+    .navbar-nav form button {
+        padding: 0.5rem !important;
+    }
+}
+
+/* Карточки в блоке "Сейчас читаю" */
+.reading-card {
+    transition: transform 0.2s;
+}
+.reading-card:hover {
+    transform: scale(1.05);
+}
+.reading-card .card {
+    border: 1px solid var(--accent-light);
+    background-color: var(--secondary-bg);
+}
+
+.progress-bar {
+    background-color: var(--accent-primary) !important;
+    font-weight: bold;
+    color: white;
+}
+
+/* Отключаем анимацию для карточки вызова */
+.challenge-card {
+    transition: none !important;
+}
+.challenge-card:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Отключаем любые hover-эффекты для статичных карточек (статистика и вызов) */
+.static-card,
+.static-card:hover {
+    transform: none !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important; /* оставляем обычную тень как у карточки без наведения */
+    transition: none !important;
+    background-color: var(--secondary-bg) !important;
+}
+
+/* Заголовки в статичных карточках (Статистика, Книжный вызов) */
+.static-card h3 {
+    font-size: 2.5rem;  /* ещё больше */
+    font-weight: 400;   /* обычный, не жирный */
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Единый стиль для всех бейджей статистики */
+.stats-badge {
+    background-color: #797b3a !important;
+    color: white;
+    font-weight: 600;
+    padding: 0.35em 0.8em;
+    border-radius: 50px;
+}
+
+.static-card {
+    transition: none !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+.static-card:hover {
+    transform: none !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+
+.profile-card {
+    background-color: #d1c4b3;
+    border-radius: 10px;
+}

@@ -1,0 +1,27 @@
+{% extends 'catalog/base.html' %}
+{% block title %}Мои коллекции{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-4">Мои коллекции</h1> <!-- можно изменить размер -->
+    <a href="{% url 'collection_create' %}" class="btn btn-success">Новая коллекция</a>
+</div>
+
+{% if collections %}
+    <div class="row">
+        {% for collection in collections %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 static-card" style="background-color: #e6d7c4;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ collection.name }}</h5>
+                        <p class="card-text">{{ collection.description|truncatechars:100 }}</p>
+                        <p class="text-muted small">{{ collection.books.count }} книг</p>
+                        <a href="{% url 'collection_detail' collection.id %}" class="btn btn-sm btn-outline-primary">Открыть</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-muted">У вас пока нет коллекций. 
+{% endif %}
+{% endblock %}

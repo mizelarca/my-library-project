@@ -1,0 +1,78 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block title %}Мой профиль{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <!-- Единая центрированная колонка для всего содержимого -->
+    <div class="col-md-8">
+        <h1 class="mb-4 text-center">Профиль пользователя</h1>
+
+        <!-- Карточка профиля (без сообщений) -->
+        <div class="card static-card mb-4" style="background-color: #d1c4b3;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        {% if user.profile.avatar %}
+                            <img src="{{ user.profile.avatar.url }}" class="img-fluid rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" alt="Avatar">
+                        {% else %}
+                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto" style="width: 150px; height: 150px;">
+                                <i class="bi bi-person-fill text-white" style="font-size: 5rem;"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <!-- Поле логина -->
+                            <div class="mb-3">
+                                <label for="{{ user_form.username.id_for_label }}" class="form-label">Логин</label>
+                                {{ user_form.username }}
+                                {% if user_form.username.errors %}
+                                    <div class="text-danger">{{ user_form.username.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Поле email -->
+                            <div class="mb-3">
+                                <label for="{{ user_form.email.id_for_label }}" class="form-label">Email</label>
+                                {{ user_form.email }}
+                                {% if user_form.email.errors %}
+                                    <div class="text-danger">{{ user_form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Поле имя -->
+                            <div class="mb-3">
+                                <label for="{{ user_form.first_name.id_for_label }}" class="form-label">Имя</label>
+                                {{ user_form.first_name }}
+                            </div>
+
+                            <!-- Поле аватар -->
+                            <div class="mb-3">
+                                <label for="{{ profile_form.avatar.id_for_label }}" class="form-label">Аватар</label>
+                                {{ profile_form.avatar }}
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карточка безопасности -->
+        <div class="card static-card mt-4" style="background-color: #d1c4b3;">
+            <div class="card-body">
+                <h3 class="h4 text-center mb-3">Безопасность</h3>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{% url 'password_change' %}" class="btn" style="background-color: #d1c4b3; color: #000; border: 1px solid #aaa;">Сменить пароль</a>
+                    <a href="mailto:personallib2026@gmail.com" class="btn" style="background-color: #d1c4b3; color: #000; border: 1px solid #aaa;">Связаться с поддержкой</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

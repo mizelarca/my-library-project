@@ -1,0 +1,43 @@
+{% extends 'catalog/base.html' %}
+{% block title %}{{ collection.name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-4">{{ collection.name }}</h1> <!-- можно изменить размер -->
+    <div>
+        <a href="{% url 'collection_edit' collection.id %}" class="btn btn-sm btn-outline-secondary">Редактировать</a>
+        <a href="{% url 'collection_delete' collection.id %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+        <a href="{% url 'collection_add_books' collection.id %}" class="btn btn-sm btn-success">Добавить книги</a>
+    </div>
+</div>
+
+{% if collection.description %}
+    <p class="lead">{{ collection.description }}</p>
+{% endif %}
+
+{% if collection.books.all %}
+    <div class="row">
+        {% for book in collection.books.all %}
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card h-100">
+                    {% if book.cover_image %}
+                        <img src="{{ book.cover_image.url }}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="{{ book.title }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/150x200?text=No+Cover" class="card-img-top" style="height: 150px; object-fit: cover;" alt="No cover">
+                    {% endif %}
+                    <div class="card-body">
+                        <h6 class="card-title">{{ book.title|truncatechars:30 }}</h6>
+                        <p class="card-text small">{{ book.author.name }}</p>
+                        <form method="post" action="{% url 'remove_book_from_collection' collection.id book.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Удалить</button>
+                        </form>
+                        <a href="{% url 'book_detail' book.id %}" class="btn btn-sm btn-outline-primary">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-muted">В этой коллекции пока нет книг.</p>
+{% endif %}
+{% endblock %}

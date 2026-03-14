@@ -1,0 +1,203 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* === Общий фон страницы (прокручивается) === */
+    body {
+        background-image: url("{% static 'catalog/фон_главная19.png' %}");
+        background-size: contain;  /* или cover, как тебе удобнее */
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: scroll;
+        background-color: #efe9dd; /* цвет фона на случай пустот */
+    }
+
+    /* === Верхний блок (герой) === */
+    .hero {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 10vh 2rem 2rem;
+        margin-bottom: 5rem;
+        /* без фона, чтобы было видно общий фон */
+    }
+    .hero h1 {
+        font-family: 'Great Vibes', cursive;
+        font-size: 6rem;
+        font-weight: bold;
+        color: #3e2c1f;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    .hero p {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 1.8rem;
+        color: #333;  /* можно заменить на #d1c4b3 если хочешь светлее */
+        max-width: 900px;
+        margin: 0 auto 2rem;
+        line-height: 1.6;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    .hero-buttons .btn {
+        font-size: 1.8rem;
+        padding: 1rem 3rem;
+        margin: 0.5rem;
+        border-radius: 50px;
+    }
+
+    /* === Блоки преимуществ === */
+    .feature-block {
+        margin-bottom: 8rem;
+        background-color: rgba(230, 215, 196, 0.7); /* полупрозрачный фон */
+        border-radius: 30px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        transition: background-color 0.3s ease;
+    }
+    .feature-block:hover {
+        background-color: rgba(230, 215, 196, 0.9);
+    }
+    .feature-image img {
+        width: 100%;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .feature-text {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 1.5rem 2rem;
+    }
+    .feature-text h3 {
+        font-size: 2.8rem;
+        color: #3e2c1f;  /* тёмно-коричневый */
+        margin-bottom: 1.5rem;
+    }
+    .feature-text p {
+        font-size: 1.6rem;
+        color: #666;      /* серый */
+        line-height: 1.6;
+    }
+
+    /* === Финальный призыв === */
+    .cta-block {
+        background-color: #e6d7c4;  /* светлый фон */
+        padding: 4rem 2rem;
+        border-radius: 30px;
+        text-align: center;
+        margin: 8rem 0 3rem;
+    }
+    .cta-block h2 {
+        font-size: 3rem;
+        color: #3e2c1f;
+        margin-bottom: 1.5rem;
+    }
+    .cta-block .btn {
+        font-size: 1.8rem;
+        padding: 1rem 3rem;
+        border-radius: 50px;
+    }
+
+    /* === Адаптация под мобильные === */
+    @media (max-width: 768px) {
+        .hero h1 {
+            font-size: 3.5rem;
+        }
+        .hero p {
+            font-size: 1.4rem;
+        }
+        .hero-buttons .btn {
+            font-size: 1.4rem;
+            padding: 0.75rem 2rem;
+        }
+        .feature-block {
+            margin-bottom: 5rem;
+            padding: 1.5rem;
+        }
+        .feature-text h3 {
+            font-size: 2.2rem;
+        }
+        .feature-text p {
+            font-size: 1.3rem;
+        }
+        .cta-block {
+            margin-top: 5rem;
+        }
+        .cta-block h2 {
+            font-size: 2.2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block title %}Добро пожаловать!{% endblock %}
+
+{% block content %}
+<!-- === Верхний блок (герой) === -->
+<div class="hero">
+    <div>
+        <h1>Управляй своей библиотекой легко!</h1>
+        <p>
+            Веди учёт прочитанных книг, отслеживай прогресс, создавай коллекции и никогда не забывай, что ты хотел почитать. Начни прямо сейчас — добавь первую книгу в свою библиотеку!
+        </p>
+        <div class="hero-buttons">
+            {% if not user.is_authenticated %}
+                <a class="btn btn-primary btn-lg" href="{% url 'register' %}" role="button">Зарегистрироваться</a>
+                <a class="btn btn-outline-secondary btn-lg" href="{% url 'login' %}" role="button">Войти</a>
+            {% else %}
+                <a class="btn btn-success btn-lg" href="{% url 'dashboard' %}" role="button">Перейти в кабинет</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- === Блоки преимуществ === -->
+<!-- Блок 1: текст слева, картинка справа -->
+<div class="row feature-block align-items-center">
+    <div class="col-md-6 feature-text">
+        <h3>Добавляй книги сразу после покупки</h3>
+        <p>Не откладывай на потом. Внеси книгу в свою библиотеку в один клик — указывай автора, жанр, статус и даже добавь обложку. Всё всегда под рукой.</p>
+    </div>
+    <div class="col-md-6 feature-image">
+        <!-- ПОКА КАРТИНОК НЕТ, УБЕРИ или оставь заглушку -->
+        <img src="{% static 'catalog/фон_главная21.jpg' %}" alt="Добавление книг">
+    </div>
+</div>
+
+<!-- Блок 2: картинка слева, текст справа -->
+<div class="row feature-block align-items-center">
+    <div class="col-md-6 feature-image order-md-1 order-2">
+        <img src="{% static 'catalog/фон_главная23.jpg' %}" alt="Коллекции">
+    </div>
+    <div class="col-md-6 feature-text order-md-2 order-1">
+        <h3>Создавай коллекции для любых целей</h3>
+        <p>Группируй книги по настроению, жанру или собственным проектам. Одна книга может быть в нескольких коллекциях — так удобнее находить нужное.</p>
+    </div>
+</div>
+
+<!-- Блок 3: текст слева, картинка справа -->
+<div class="row feature-block align-items-center">
+    <div class="col-md-6 feature-text">
+        <h3>Участвуй в книжном вызове</h3>
+        <p>Ставь цель на год, следи за прогрессом и получай удовольствие от выполнения. Книжный вызов поможет читать больше и системно.</p>
+    </div>
+    <div class="col-md-6 feature-image">
+        <img src="{% static 'catalog/фон_главная22.jpg' %}" alt="Книжный вызов">
+    </div>
+</div>
+
+<!-- === Финальный призыв === -->
+<div class="cta-block">
+    <h2>Хочешь создать свою библиотеку мечты?</h2>
+    <p class="lead mb-4">Мы поможем тебе организовать чтение и не терять любимые книги.</p>
+    {% if not user.is_authenticated %}
+        <a href="{% url 'register' %}" class="btn btn-success btn-lg">Присоединиться сейчас</a>
+    {% else %}
+        <a href="{% url 'dashboard' %}" class="btn btn-success btn-lg">Перейти в кабинет</a>
+    {% endif %}
+</div>
+{% endblock %}
