@@ -771,3 +771,32 @@ def genre_delete(request, genre_id):
         genre.delete()
         messages.success(request, f'Жанр "{genre.name}" удалён.')
     return redirect('genre_add')
+
+from django.http import JsonResponse
+
+@login_required
+def change_book_status(request, book_id):
+    """Быстрое изменение статуса книги через AJAX"""
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        book = get_object_or_404(Book, id=book_id, owner=request.user)
+        new_status = request.POST.get('status')
+        
+        # Сопоставление названий статусов
+        status_map = {
+            'read': 'Прочитано',
+            'reading': 'В процессе',
+            'unread': 'Непрочитано',
+            'abandoned': 'Брошено'
+        }
+        
+        if new_status in status_map:
+            # Находим объект статуса
+            status_obj = Status.objects.filter(name=new_status).first()
+            if status_obj:
+                book.status = status_obj
+                book.save()
+                return JsonResponse({'success': True, 'new_status': status_map[new_status]})
+        
+        return JsonResponse({'success': False, 'error': 'Неверный статус'})
+    
+    return JsonResponse({'success': False, 'error': 'Неверный запрос'})

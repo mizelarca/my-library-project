@@ -21,6 +21,7 @@ urlpatterns = [
     path('collections/<int:collection_id>/edit/', views.collection_edit, name='collection_edit'),
     path('collections/<int:collection_id>/delete/', views.collection_delete, name='collection_delete'),
     path('collections/bulk-delete/', views.bulk_delete_collections, name='bulk_delete_collections'),
+    path('book/<int:book_id>/change-status/', views.change_book_status, name='change_book_status'),
     path('book/<int:book_id>/add-to-collection/', views.add_book_to_collection, name='add_book_to_collection'),
     path('collections/<int:collection_id>/remove/<int:book_id>/', views.remove_book_from_collection, name='remove_book_from_collection'),
     path('collections/<int:collection_id>/add-books/', views.collection_add_books, name='collection_add_books'),
