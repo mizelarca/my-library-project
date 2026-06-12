@@ -1,5 +1,7 @@
 {% extends 'catalog/base.html' %}
+
 {% block title %}Добавить книги в "{{ collection.name }}"{% endblock %}
+
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>Добавить книги в коллекцию "{{ collection.name }}"</h1>
@@ -8,6 +10,7 @@
 
 <form method="post">
     {% csrf_token %}
+
     {% if available_books %}
         <div class="row">
             {% for book in available_books %}
@@ -29,9 +32,14 @@
                 </div>
             {% endfor %}
         </div>
-        <button type="submit" class="btn btn-success">Добавить выбранные книги</button>
+
+        <!-- Кнопка с нижним отступом mb-5 -->
+        <div class="mb-5">
+            <button type="submit" class="btn btn-success">Добавить выбранные книги</button>
+        </div>
     {% else %}
         <p class="text-muted">Все ваши книги уже в этой коллекции. <a href="{% url 'book_add' %}">Добавьте новую книгу</a>.</p>
     {% endif %}
 </form>
+
 {% endblock %}

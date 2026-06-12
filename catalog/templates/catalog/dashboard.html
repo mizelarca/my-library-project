@@ -1,16 +1,17 @@
 {% extends 'catalog/base.html' %}
 {% load static %}
+{% load book_filters %}
 
-{% block title %}Личный кабинет{% endblock %}
+{% block title %}{% if user_language == 'en' %}Dashboard{% else %}Личный кабинет{% endif %}{% endblock %}
 
 {% block content %}
 <!-- заголовок и блок профиля -->
-<div class="row mb-4 align-items-center">
+<div class="row mb-4 align-items-center dashboard-header">
     <div class="col-md-10">
         <h1 class="display-4">Добро пожаловать, {{ user.username }}!</h1>
     </div>
     <div class="col-md-2 d-flex justify-content-end">
-        <div class="profile-card d-flex align-items-center p-2 rounded" style="background-color: #d1c4b3; width: fit-content;">
+        <div class="profile-card d-flex align-items-center p-2 rounded" style="background-color: #d1c4b3; width: 260px;">
             <div class="me-2">
                 {% if user.profile and user.profile.avatar %}
                     <img src="{{ user.profile.avatar.url }}" class="rounded-circle" width="48" height="48" alt="Avatar">
@@ -22,39 +23,72 @@
             </div>
             <div class="d-flex flex-column align-items-center">
                 <h4 class="mb-0 fw-bold">{{ user.get_full_name|default:user.username }}</h4>
-                <a href="{% url 'profile' %}" class="btn btn-outline-dark mt-1 py-1 px-3" style="font-size: 0.9rem;">ред.</a>
+                <a href="{% url 'profile' %}" class="btn btn-outline-dark mt-1 py-1 px-3" style="font-size: 0.9rem; border: none;">ред.</a>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Блок "Сейчас читаю" с кнопкой -->
-<div class="row mb-5">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="h3 mb-0" style="font-size: 2.5rem;">Сейчас читаю</h2>
-            <a href="{% url 'book_list' %}" class="dashboard-btn">
-                <i class="bi bi-arrow-right-circle"></i> Мои книги
-            </a>
+<!-- Модальное окно для случайной книги -->
+<div class="modal fade" id="randomBookModal" tabindex="-1" aria-labelledby="randomBookModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: #efe9dd; border-radius: 20px;">
+            <div class="modal-header" style="border-bottom-color: #d1c4b3; position: relative;">
+                <h5 class="modal-title w-100 text-center" id="randomBookModalLabel" style="font-family: 'Great Vibes', cursive; color: #3e2c1f; font-size: 1.8rem;">
+                    🎲 Вам выпала книга!
+                </h5>
+            </div>
+            <div class="modal-body text-center" id="randomBookContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-success" role="status" style="color: #797b3a !important;">
+                        <span class="visually-hidden">Загрузка...</span>
+                    </div>
+                    <p class="mt-3">Ищем книгу...</p>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top-color: #d1c4b3; justify-content: center;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: #d1c4b3; border-color: #d1c4b3; color: #3e2c1f; padding: 0.5rem 2rem;">Закрыть</button>
+                <a href="#" id="goToBookBtn" class="btn btn-primary" style="background-color: #797b3a; border-color: #797b3a; display: none;">Перейти к книге</a>
+            </div>
         </div>
     </div>
-    {% if reading_books %}
-        {% for book in reading_books %}
-            <div class="col-md-2 col-sm-4 col-6 mb-3">
-                <a href="{% url 'book_detail' book.id %}" class="text-decoration-none">
-                    <div class="card h-100 text-center p-2">
-                        {% if book.cover_image %}
-                            <img src="{{ book.cover_image.url }}" class="card-img-top img-fluid" alt="{{ book.title }}" style="height: 120px; object-fit: cover;">
-                        {% else %}
-                            <img src="https://via.placeholder.com/120x160?text=No+Cover" class="card-img-top img-fluid" alt="No cover" style="height: 120px; object-fit: cover;">
-                        {% endif %}
-                        <div class="card-body p-1">
-                            <p class="card-text small">{{ book.title|truncatechars:20 }}</p>
-                        </div>
-                    </div>
+</div>
+
+<!-- Блок "Сейчас читаю" с двумя кнопками справа -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3 reading-header flex-wrap">
+            <h2 class="h3 mb-0" style="font-size: 2.5rem;">Сейчас читаю</h2>
+            <div class="d-flex gap-3">
+                <a href="{% url 'book_list' %}" class="dashboard-btn" style="font-size: 1.2rem; padding: 0.75rem 2rem; border-radius: 50px; background-color: #797b3a; border-color: #797b3a; color: white; text-decoration: none; display: inline-block;">
+                    <i class="bi bi-arrow-right-circle"></i> Мои книги
                 </a>
+                <button type="button" class="btn" id="randomBookBtn" style="background-color: #797b3a; border-color: #797b3a; color: white; font-size: 1.2rem; padding: 0.75rem 2rem; border-radius: 50px;">
+                    <i class="bi bi-shuffle me-2"></i> Что почитать?
+                </button>
             </div>
-        {% endfor %}
+        </div>
+    </div>
+
+    {% if reading_books %}
+        <div class="row">
+            {% for book in reading_books %}
+                <div class="col-md-2 col-sm-4 col-6 mb-3">
+                    <a href="{% url 'book_detail' book.id %}" class="text-decoration-none">
+                        <div class="card h-100 text-center p-2">
+                            {% if book.cover_image %}
+                                <img src="{{ book.cover_image.url }}" class="card-img-top img-fluid" alt="{{ book.title }}" style="height: 120px; object-fit: cover;">
+                            {% else %}
+                                <img src="https://via.placeholder.com/120x160?text=No+Cover" class="card-img-top img-fluid" alt="No cover" style="height: 120px; object-fit: cover;">
+                            {% endif %}
+                            <div class="card-body p-1">
+                                <p class="card-text small">{{ book.title|truncatechars:20 }}</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
     {% else %}
         <div class="col-12">
             <p class="text-muted">Сейчас ты ничего не читаешь.</p>
@@ -64,63 +98,391 @@
 
 <!-- Две колонки: статистика и книжный вызов -->
 <div class="row">
-    <!-- Левая колонка: статистика по статусам -->
     <div class="col-md-6 mb-4 d-flex">
         <div class="card h-100 w-100 static-card">
             <div class="card-body d-flex flex-column">
                 <h3 class="text-center mb-3">Статистика</h3>
-                <ul class="list-group list-group-flush flex-grow-1">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>Непрочитано</span>
-                        <span class="badge stats-badge">{{ stats.unread|default:0 }}</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>В процессе</span>
-                        <span class="badge stats-badge">{{ stats.reading|default:0 }}</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>Прочитано</span>
-                        <span class="badge stats-badge">{{ stats.read|default:0 }}</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>Брошено</span>
-                        <span class="badge stats-badge">{{ stats.abandoned|default:0 }}</span>
-                    </li>
-                </ul>
+
+                {% if total > 0 %}
+                    <div style="position: relative; width: 100%; max-width: 300px; margin: 0 auto;">
+                        <canvas id="statsChart" width="300" height="300"></canvas>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
+                            <span style="font-size: 2.5rem; font-weight: bold; color: #3e2c1f;">{{ total }}</span><br>
+                            <span style="font-size: 0.9rem; color: #666;">всего книг</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap justify-content-center gap-3 mt-3">
+                        <div><span style="display: inline-block; width: 20px; height: 20px; background-color: #3e2c1f; border-radius: 4px;"></span> Прочитано: {{ stats.read|default:0 }}</div>
+                        <div><span style="display: inline-block; width: 20px; height: 20px; background-color: #5a3e2c; border-radius: 4px;"></span> В процессе: {{ stats.reading|default:0 }}</div>
+                        <div><span style="display: inline-block; width: 20px; height: 20px; background-color: #7d5e44; border-radius: 4px;"></span> Непрочитано: {{ stats.unread|default:0 }}</div>
+                        <div><span style="display: inline-block; width: 20px; height: 20px; background-color: #a58d76; border-radius: 4px;"></span> Брошено: {{ stats.abandoned|default:0 }}</div>
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted">У вас пока нет книг</p>
+                {% endif %}
             </div>
         </div>
     </div>
 
-    <!-- Правая колонка: Книжный вызов -->
     <div class="col-md-6 mb-4 d-flex">
         <div class="card h-100 w-100 static-card">
             <div class="card-body d-flex flex-column">
                 <h3 class="text-center mb-3">Книжный вызов {{ challenge.year }}</h3>
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="h5">Прогресс:</span>
-                    <span class="h5">{{ books_read_this_year }} / {{ challenge.goal }}</span>
+                <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1">
+                    <div class="mb-3 text-center">
+                        <span class="h5">Прогресс:</span>
+                        <span class="h5 ms-2">{{ books_read_this_year }} / {{ challenge.goal }}</span>
+                    </div>
+                    <div class="progress w-100 mb-4" style="height: 25px; background-color: #d1c4b3; border-radius: 30px;">
+                        <div class="progress-bar" role="progressbar"
+                             style="width: {{ progress_percent }}%; background-color: #797b3a !important; border-radius: 30px;"
+                             aria-valuenow="{{ books_read_this_year }}" aria-valuemin="0" aria-valuemax="{{ challenge.goal }}">
+                            {{ books_read_this_year }}/{{ challenge.goal }}
+                        </div>
+                    </div>
+                    <form method="post" class="row g-2 align-items-end w-100">
+                        {% csrf_token %}
+                        <div class="col-8">
+                            <label for="{{ form.goal.id_for_label }}" class="form-label">Цель на год</label>
+                            {{ form.goal }}
+                        </div>
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-primary w-100">Обновить</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="progress mb-4" style="height: 25px;">
-                    <div class="progress-bar bg-success" role="progressbar" 
-                         style="width: {{ progress_percent }}%;"
-                         aria-valuenow="{{ books_read_this_year }}" aria-valuemin="0" aria-valuemax="{{ challenge.goal }}">
-                        {{ books_read_this_year }}/{{ challenge.goal }}
-                    </div>
-                </div>
-
-                <!-- Форма для изменения цели -->
-                <form method="post" class="row g-2 align-items-end mt-auto">
-                    {% csrf_token %}
-                    <div class="col-8">
-                        <label for="{{ form.goal.id_for_label }}" class="form-label">Цель на год</label>
-                        {{ form.goal }}
-                    </div>
-                    <div class="col-4">
-                        <button type="submit" class="btn btn-primary w-100">Обновить</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Блок с топ-авторами, топ-жанрами и топ-книгами -->
+<div class="row mt-4">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 static-card">
+            <div class="card-body">
+                <h3 class="text-center mb-3" style="font-family: 'Great Vibes', cursive; color: #3e2c1f;">Любимые авторы</h3>
+                {% if top_authors %}
+                    <div class="list-group list-group-flush">
+                        {% for author in top_authors %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #d1c4b3;">
+                                <span style="color: #3e2c1f; font-weight: 500;">
+                                    <i class="bi bi-person-fill me-2" style="color: #797b3a;"></i>
+                                    {{ author.author__name }}
+                                </span>
+                                <span class="badge rounded-pill" style="background-color: #797b3a; color: white;">
+                                    {{ author.count }} {{ author.count|ru_plural:"книга,книги,книг" }}
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted">Добавьте книги, чтобы увидеть любимых авторов</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 static-card">
+            <div class="card-body">
+                <h3 class="text-center mb-3" style="font-family: 'Great Vibes', cursive; color: #3e2c1f;">Любимые жанры</h3>
+                {% if top_genres %}
+                    <div class="list-group list-group-flush">
+                        {% for genre in top_genres %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #d1c4b3;">
+                                <span style="color: #3e2c1f; font-weight: 500;">
+                                    <i class="bi bi-tag-fill me-2" style="color: #797b3a;"></i>
+                                    {{ genre.genre__name }}
+                                </span>
+                                <span class="badge rounded-pill" style="background-color: #797b3a; color: white;">
+                                    {{ genre.count }} {{ genre.count|ru_plural:"книга,книги,книг" }}
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted">Добавьте книги, чтобы увидеть любимые жанры</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 static-card">
+            <div class="card-body">
+                <h3 class="text-center mb-3" style="font-family: 'Great Vibes', cursive; color: #3e2c1f;">Лучшие книги</h3>
+                {% if top_books %}
+                    <div class="list-group list-group-flush">
+                        {% for book in top_books %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center" style="background-color: transparent; border-color: #d1c4b3;">
+                                <div style="flex: 1;">
+                                    <span style="color: #3e2c1f; font-weight: 500;">
+                                        <i class="bi bi-star-fill me-2" style="color: #ffc107;"></i>
+                                        {{ book.title|truncatechars:30 }}
+                                    </span>
+                                    <div class="small text-muted">{{ book.author.name|default:"Автор не указан" }}</div>
+                                </div>
+                                <span class="badge rounded-pill" style="background-color: #ffc107; color: #3e2c1f;">
+                                    ★ {{ book.rating }}/5
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted">Оцените книги, чтобы увидеть лучшие</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Блок со статистикой по месяцам -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card static-card">
+            <div class="card-body">
+                <h3 class="text-center mb-3" style="font-family: 'Great Vibes', cursive; color: #3e2c1f; font-size: 1.8rem;">Прочитано книг по месяцам ({{ current_year }})</h3>
+                {% if books_read_this_year > 0 %}
+                    <div style="max-width: 100%; overflow-x: auto;">
+                        <canvas id="monthlyChart" width="600" height="250" style="max-width: 100%; height: auto; max-height: 250px;"></canvas>
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted">В этом году вы ещё не прочитали ни одной книги</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript для модального окна -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const randomBtn = document.getElementById('randomBookBtn');
+    if (randomBtn) {
+        randomBtn.addEventListener('click', function() {
+            const modal = new bootstrap.Modal(document.getElementById('randomBookModal'));
+            modal.show();
+
+            const contentDiv = document.getElementById('randomBookContent');
+            contentDiv.innerHTML = `
+                <div class="text-center py-4">
+                    <div class="spinner-border text-success" role="status" style="color: #797b3a !important;">
+                        <span class="visually-hidden">Загрузка...</span>
+                    </div>
+                    <p class="mt-3">Ищем книгу...</p>
+                </div>
+            `;
+
+            fetch('/random-book/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let coverHtml = '';
+                        if (data.book.cover) {
+                            coverHtml = `<img src="${data.book.cover}" class="img-fluid rounded mb-3" style="max-height: 200px; object-fit: cover;" alt="${data.book.title}">`;
+                        } else {
+                            coverHtml = `<div class="mb-3" style="background-color: #d1c4b3; width: 150px; height: 200px; margin: 0 auto; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+                                            <i class="bi bi-book" style="font-size: 3rem; color: #797b3a;"></i>
+                                        </div>`;
+                        }
+
+                        contentDiv.innerHTML = `
+                            ${coverHtml}
+                            <h4 class="mt-2" style="color: #3e2c1f;">${data.book.title}</h4>
+                            <p class="mb-2" style="color: #694633;"><strong>${data.book.author}</strong></p>
+                        `;
+
+                        const goToBtn = document.getElementById('goToBookBtn');
+                        goToBtn.href = `/book/${data.book.id}/`;
+                        goToBtn.style.display = 'inline-block';
+                    } else {
+                        contentDiv.innerHTML = `
+                            <div class="text-center py-4">
+                                <i class="bi bi-emoji-frown" style="font-size: 3rem; color: #797b3a;"></i>
+                                <p class="mt-3" style="color: #694633;">${data.message}</p>
+                            </div>
+                        `;
+                        document.getElementById('goToBookBtn').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    contentDiv.innerHTML = `
+                        <div class="text-center py-4">
+                            <i class="bi bi-exclamation-triangle" style="font-size: 3rem; color: #dc3545;"></i>
+                            <p class="mt-3">Ошибка при загрузке книги. Попробуйте позже.</p>
+                        </div>
+                    `;
+                    document.getElementById('goToBookBtn').style.display = 'none';
+                });
+        });
+    }
+});
+</script>
+
+<!-- Подключаем Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Скрипт для круговой диаграммы -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('statsChart');
+        if (ctx) {
+            const statsData = {
+                read: {{ stats.read|default:0 }},
+                reading: {{ stats.reading|default:0 }},
+                unread: {{ stats.unread|default:0 }},
+                abandoned: {{ stats.abandoned|default:0 }}
+            };
+
+            const colors = ['#3e2c1f', '#5a3e2c', '#7d5e44', '#a58d76'];
+            const labels = ['Прочитано', 'В процессе', 'Непрочитано', 'Брошено'];
+
+            const data = [];
+            const backgroundColors = [];
+            const dataLabels = [];
+
+            if (statsData.read > 0) {
+                data.push(statsData.read);
+                backgroundColors.push(colors[0]);
+                dataLabels.push(labels[0]);
+            }
+            if (statsData.reading > 0) {
+                data.push(statsData.reading);
+                backgroundColors.push(colors[1]);
+                dataLabels.push(labels[1]);
+            }
+            if (statsData.unread > 0) {
+                data.push(statsData.unread);
+                backgroundColors.push(colors[2]);
+                dataLabels.push(labels[2]);
+            }
+            if (statsData.abandoned > 0) {
+                data.push(statsData.abandoned);
+                backgroundColors.push(colors[3]);
+                dataLabels.push(labels[3]);
+            }
+
+            if (data.length > 0) {
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: dataLabels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: backgroundColors,
+                            borderWidth: 0,
+                        }]
+                    },
+                    options: {
+                        cutout: '70%',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { enabled: true }
+                        },
+                        maintainAspectRatio: true,
+                    }
+                });
+            }
+        }
+    });
+</script>
+
+<!-- График статистики по месяцам -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('=== График: начало загрузки ===');
+        const monthlyCanvas = document.getElementById('monthlyChart');
+        console.log('Canvas элемент:', monthlyCanvas);
+        console.log('books_read_this_year:', {{ books_read_this_year }});
+        
+        if (monthlyCanvas) {
+            try {
+                const monthlyData = {{ monthly_data|safe }};
+                const months = {{ months|safe }};
+                
+                console.log('Monthly data:', monthlyData);
+                console.log('Months:', months);
+                console.log('Сумма данных:', monthlyData.reduce((a,b) => a + b, 0));
+                
+                const hasData = monthlyData.some(value => value > 0);
+                console.log('Есть данные > 0:', hasData);
+                
+                if (hasData) {
+                    console.log('Создаем график...');
+                    new Chart(monthlyCanvas, {
+                        type: 'bar',
+                        data: {
+                            labels: months,
+                            datasets: [{
+                                label: 'Прочитано книг',
+                                data: monthlyData,
+                                backgroundColor: '#797b3a',
+                                borderColor: '#5a5e2c',
+                                borderWidth: 1,
+                                borderRadius: 5,
+                                barPercentage: 0.7,
+                                categoryPercentage: 0.8
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: { font: { family: 'Georgia', size: 11 } }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const value = context.raw;
+                                            let word = 'книг';
+                                            if (value === 1) word = 'книга';
+                                            else if (value >= 2 && value <= 4) word = 'книги';
+                                            return `${value} ${word}`;
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { stepSize: 1, font: { family: 'Georgia', size: 10 } },
+                                    grid: { color: '#d1c4b3' }
+                                },
+                                x: {
+                                    ticks: { font: { family: 'Georgia', size: 10 } },
+                                    grid: { display: false }
+                                }
+                            }
+                        }
+                    });
+                    console.log('График создан!');
+                } else {
+                    console.log('Нет данных для отображения');
+                    monthlyCanvas.style.display = 'none';
+                    const parent = monthlyCanvas.parentElement;
+                    if (parent && !parent.querySelector('.no-data-message')) {
+                        const msg = document.createElement('p');
+                        msg.className = 'text-center text-muted';
+                        msg.innerText = 'Нет прочитанных книг с указанной датой окончания';
+                        parent.appendChild(msg);
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка при создании графика:', error);
+                const parent = monthlyCanvas.parentElement;
+                const errorMsg = document.createElement('p');
+                errorMsg.className = 'text-center text-danger';
+                errorMsg.innerText = 'Ошибка загрузки графика: ' + error.message;
+                parent.appendChild(errorMsg);
+            }
+        } else {
+            console.log('Canvas элемент не найден!');
+        }
+    });
+</script>
 {% endblock %}

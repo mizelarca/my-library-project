@@ -4,75 +4,101 @@
 {% block title %}Мой профиль{% endblock %}
 
 {% block content %}
+{% with user_language=user.profile.language|default:"ru" %}
+
 <div class="row justify-content-center">
-    <!-- Единая центрированная колонка для всего содержимого -->
     <div class="col-md-8">
-        <h1 class="mb-4 text-center">Профиль пользователя</h1>
+        <h1 class="mb-4 text-center">{% if user_language == 'en' %}Profile{% else %}Профиль пользователя{% endif %}</h1>
 
-        <!-- Карточка профиля (без сообщений) -->
-        <div class="card static-card mb-4" style="background-color: #d1c4b3;">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4 text-center">
-                        {% if user.profile.avatar %}
-                            <img src="{{ user.profile.avatar.url }}" class="img-fluid rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" alt="Avatar">
-                        {% else %}
-                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto" style="width: 150px; height: 150px;">
-                                <i class="bi bi-person-fill text-white" style="font-size: 5rem;"></i>
-                            </div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-8">
-                        <form method="post" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            
-                            <!-- Поле логина -->
-                            <div class="mb-3">
-                                <label for="{{ user_form.username.id_for_label }}" class="form-label">Логин</label>
-                                {{ user_form.username }}
-                                {% if user_form.username.errors %}
-                                    <div class="text-danger">{{ user_form.username.errors }}</div>
-                                {% endif %}
-                            </div>
+        <div class="col-md-12">
+            <!-- Карточка профиля -->
+            <div class="card mb-4" style="background-color: #d1c4b3; border: none; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                <div class="card-body" style="padding: 2rem;">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            {% if user.profile.avatar %}
+                                <img src="{{ user.profile.avatar.url }}" class="img-fluid rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" alt="Avatar">
+                            {% else %}
+                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto" style="width: 150px; height: 150px;">
+                                    <i class="bi bi-person-fill text-white" style="font-size: 5rem;"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <!-- ВАЖНО: enctype="multipart/form-data" -->
+                            <form method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
 
-                            <!-- Поле email -->
-                            <div class="mb-3">
-                                <label for="{{ user_form.email.id_for_label }}" class="form-label">Email</label>
-                                {{ user_form.email }}
-                                {% if user_form.email.errors %}
-                                    <div class="text-danger">{{ user_form.email.errors }}</div>
-                                {% endif %}
-                            </div>
+                                <div class="mb-4">
+                                    <label for="{{ user_form.username.id_for_label }}" class="form-label">{% if user_language == 'en' %}Username{% else %}Логин{% endif %}</label>
+                                    {{ user_form.username }}
+                                </div>
 
-                            <!-- Поле имя -->
-                            <div class="mb-3">
-                                <label for="{{ user_form.first_name.id_for_label }}" class="form-label">Имя</label>
-                                {{ user_form.first_name }}
-                            </div>
+                                <div class="mb-4">
+                                    <label for="{{ user_form.email.id_for_label }}" class="form-label">Email</label>
+                                    {{ user_form.email }}
+                                </div>
 
-                            <!-- Поле аватар -->
-                            <div class="mb-3">
-                                <label for="{{ profile_form.avatar.id_for_label }}" class="form-label">Аватар</label>
-                                {{ profile_form.avatar }}
-                            </div>
+                                <div class="mb-4">
+                                    <label for="{{ user_form.first_name.id_for_label }}" class="form-label">{% if user_language == 'en' %}First name{% else %}Имя{% endif %}</label>
+                                    {{ user_form.first_name }}
+                                </div>
 
-                            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-                        </form>
+                                <div class="mb-4">
+                                    <label for="{{ profile_form.avatar.id_for_label }}" class="form-label">{% if user_language == 'en' %}Avatar{% else %}Аватар{% endif %}</label>
+                                    <div class="mt-2">
+                                        <input type="file" name="avatar" accept="image/*" class="form-control" id="id_avatar">
+                                    </div>
+                                </div>
+
+                                <button type="submit" name="update_profile" class="btn btn-primary" style="background-color: #797b3a; border-color: #797b3a; padding: 0.6rem 1.5rem;">
+                                    {% if user_language == 'en' %}Save changes{% else %}Сохранить изменения{% endif %}
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Карточка безопасности -->
-        <div class="card static-card mt-4" style="background-color: #d1c4b3;">
-            <div class="card-body">
-                <h3 class="h4 text-center mb-3">Безопасность</h3>
-                <div class="d-flex justify-content-center gap-3">
-                    <a href="{% url 'password_change' %}" class="btn" style="background-color: #d1c4b3; color: #000; border: 1px solid #aaa;">Сменить пароль</a>
-                    <a href="mailto:personallib2026@gmail.com" class="btn" style="background-color: #d1c4b3; color: #000; border: 1px solid #aaa;">Связаться с поддержкой</a>
-                </div>
+<!-- Блок настроек (язык/тема) -->
+<div class="card mb-5" style="background-color: #d1c4b3; border: none; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); overflow: visible !important;">
+    <div class="card-body" style="padding: 2rem 2rem 1rem 2rem; overflow: visible !important;">
+        <h3 class="text-center mb-4" style="font-family: 'Great Vibes', cursive; color: #3e2c1f; font-size: 2rem;">
+            {% if user_language == 'en' %}Settings{% else %}Настройки{% endif %}
+        </h3>
+
+        <form method="post" action="{% url 'update_settings' %}">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label" style="font-size: 1rem; font-weight: 600;">{% if user_language == 'en' %}Language{% else %}Язык{% endif %}</label>
+                <select name="language" class="form-select">
+                    <option value="ru" {% if user.profile.language == 'ru' %}selected{% endif %}>Русский</option>
+                    <option value="en" {% if user.profile.language == 'en' %}selected{% endif %}>English</option>
+                </select>
             </div>
-        </div>
+
+            <div class="mb-3">
+                <label class="form-label" style="font-size: 1rem; font-weight: 600;">{% if user_language == 'en' %}Theme{% else %}Тема{% endif %}</label>
+                <select name="theme" class="form-select">
+                    <option value="light" {% if user.profile.theme == 'light' %}selected{% endif %}>{% if user_language == 'en' %}Light{% else %}Светлая{% endif %}</option>
+                    <option value="dark" {% if user.profile.theme == 'dark' %}selected{% endif %}>{% if user_language == 'en' %}Dark{% else %}Тёмная{% endif %}</option>
+                </select>
+            </div>
+
+            <!-- Центрированные кнопки "Сменить пароль" и "Написать в поддержку" (без обводки) -->
+            <div class="d-flex gap-3 justify-content-center" style="margin: 1rem 0 0.5rem 0;">
+                <a href="{% url 'password_change' %}" class="btn" style="background-color: #d1c4b3; color: #3e2c1f; border: none; padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none;">{% if user_language == 'en' %}Change password{% else %}Сменить пароль{% endif %}</a>
+                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=personallib2026@gmail.com" target="_blank" class="btn" style="background-color: #d1c4b3; color: #3e2c1f; border: none; padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none;">{% if user_language == 'en' %}Contact support{% else %}Написать в поддержку{% endif %}</a>
+            </div>
+
+            <!-- Центрированная кнопка "Сохранить настройки" -->
+            <div class="d-flex justify-content-center">
+                <button type="submit" class="btn btn-primary" style="background-color: #797b3a; border-color: #797b3a; padding: 0.6rem 1.5rem; margin-top: 0.5rem;">{% if user_language == 'en' %}Save settings{% else %}Сохранить настройки{% endif %}</button>
+            </div>
+        </form>
     </div>
 </div>
+
+{% endwith %}
 {% endblock %}

@@ -5,13 +5,11 @@
 <style>
     /* === Общий фон страницы (прокручивается) === */
     body {
-        background-image: url("{% static 'catalog/фон_главная19.png' %}");
-        background-size: contain;  /* или cover, как тебе удобнее */
-        background-position: center;
-        background-repeat: no-repeat;
+        background: linear-gradient(180deg, #efe9dd 0%, #fcf8f3 100%);
         background-attachment: scroll;
-        background-color: #efe9dd; /* цвет фона на случай пустот */
-    }
+        min-height: 100vh;
+    /* Остальные стили для главной страницы */
+}
 
     /* === Верхний блок (герой) === */
     .hero {
@@ -22,7 +20,6 @@
         text-align: center;
         padding: 10vh 2rem 2rem;
         margin-bottom: 5rem;
-        /* без фона, чтобы было видно общий фон */
     }
     .hero h1 {
         font-family: 'Great Vibes', cursive;
@@ -36,7 +33,7 @@
     .hero p {
         font-family: 'Open Sans', sans-serif;
         font-size: 1.8rem;
-        color: #333;  /* можно заменить на #d1c4b3 если хочешь светлее */
+        color: #333;
         max-width: 900px;
         margin: 0 auto 2rem;
         line-height: 1.6;
@@ -52,7 +49,7 @@
     /* === Блоки преимуществ === */
     .feature-block {
         margin-bottom: 8rem;
-        background-color: rgba(230, 215, 196, 0.7); /* полупрозрачный фон */
+        background-color: rgba(230, 215, 196, 0.7);
         border-radius: 30px;
         padding: 2.5rem;
         box-shadow: 0 10px 25px rgba(0,0,0,0.05);
@@ -74,18 +71,18 @@
     }
     .feature-text h3 {
         font-size: 2.8rem;
-        color: #3e2c1f;  /* тёмно-коричневый */
+        color: #3e2c1f;
         margin-bottom: 1.5rem;
     }
     .feature-text p {
         font-size: 1.6rem;
-        color: #666;      /* серый */
+        color: #666;
         line-height: 1.6;
     }
 
     /* === Финальный призыв === */
     .cta-block {
-        background-color: #e6d7c4;  /* светлый фон */
+        background-color: #e6d7c4;
         padding: 4rem 2rem;
         border-radius: 30px;
         text-align: center;
@@ -102,14 +99,10 @@
         border-radius: 50px;
     }
 
-    /* === Адаптация под мобильные === */
+    /* === Мобильная адаптация (всё в одном месте) === */
     @media (max-width: 768px) {
-        .hero h1 {
-            font-size: 3.5rem;
-        }
-        .hero p {
-            font-size: 1.4rem;
-        }
+        .hero h1 { font-size: 3.5rem; }
+        .hero p { font-size: 1.4rem; }
         .hero-buttons .btn {
             font-size: 1.4rem;
             padding: 0.75rem 2rem;
@@ -118,19 +111,70 @@
             margin-bottom: 5rem;
             padding: 1.5rem;
         }
-        .feature-text h3 {
-            font-size: 2.2rem;
-        }
-        .feature-text p {
-            font-size: 1.3rem;
-        }
+        .feature-text h3 { font-size: 2.2rem; }
+        .feature-text p { font-size: 1.3rem; }
+        .cta-block { margin-top: 5rem; }
+        .cta-block h2 { font-size: 2.2rem; }
+
+        /* Исправление для финального блока */
         .cta-block {
-            margin-top: 5rem;
+            padding: 2rem 1rem !important;
+            margin: 2rem 0 !important;
+            text-align: center !important;
         }
         .cta-block h2 {
-            font-size: 2.2rem;
+            font-size: 2rem !important;
+            word-break: break-word !important;
+        }
+        .cta-block .btn {
+            width: 100% !important;
+            max-width: 300px !important;
+            margin: 0 auto !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+            box-sizing: border-box !important;
+            font-size: 1.2rem !important;
+            padding: 0.75rem 1rem !important;
+            display: block !important;
         }
     }
+
+    @media (max-width: 480px) {
+        .hero h1 { font-size: 2.5rem; }
+        .hero p { font-size: 1rem; }
+        .feature-text h3 { font-size: 1.8rem; }
+        .feature-text p { font-size: 1rem; }
+    }
+.cta-block img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+.cta-block {
+    width: 100%;
+    max-width: 100%;
+    padding: 2rem 1rem !important;
+    margin: 2rem 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden; /* чтобы ничего не вылезало */
+}
+
+.cta-block .btn {
+    width: 100% !important;
+    max-width: 280px !important;
+    min-width: 200px !important;
+    margin: 0 auto !important;
+    display: block !important;
+    float: none !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    font-size: 1.2rem !important;
+    padding: 0.75rem 1rem !important;
+    box-sizing: border-box !important;
+    /* Убираем возможные трансформации */
+    transform: none !important;
+    transition: none !important;
+}
 </style>
 {% endblock %}
 
@@ -140,10 +184,8 @@
 <!-- === Верхний блок (герой) === -->
 <div class="hero">
     <div>
-        <h1>Управляй своей библиотекой легко!</h1>
-        <p>
-            Веди учёт прочитанных книг, отслеживай прогресс, создавай коллекции и никогда не забывай, что ты хотел почитать. Начни прямо сейчас — добавь первую книгу в свою библиотеку!
-        </p>
+<h1>{% if user_language == 'en' %}Manage your library easily!{% else %}Управляй своей библиотекой легко!{% endif %}</h1>
+<p>{% if user_language == 'en' %}Keep track of books you've read, track progress, create collections and never forget what you wanted to read.{% else %}Веди учёт прочитанных книг, отслеживай прогресс, создавай коллекции и никогда не забывай, что ты хотел почитать.{% endif %}</p>
         <div class="hero-buttons">
             {% if not user.is_authenticated %}
                 <a class="btn btn-primary btn-lg" href="{% url 'register' %}" role="button">Зарегистрироваться</a>
@@ -156,48 +198,94 @@
 </div>
 
 <!-- === Блоки преимуществ === -->
-<!-- Блок 1: текст слева, картинка справа -->
 <div class="row feature-block align-items-center">
     <div class="col-md-6 feature-text">
         <h3>Добавляй книги сразу после покупки</h3>
-        <p>Не откладывай на потом. Внеси книгу в свою библиотеку в один клик — указывай автора, жанр, статус и даже добавь обложку. Всё всегда под рукой.</p>
+        <p>Не откладывай на потом. Внеси книгу в свою библиотеку в один клик — указывай автора, жанр, статус и даже добавь обложку. Всё всегда под рукой!</p>
     </div>
     <div class="col-md-6 feature-image">
-        <!-- ПОКА КАРТИНОК НЕТ, УБЕРИ или оставь заглушку -->
         <img src="{% static 'catalog/фон_главная21.jpg' %}" alt="Добавление книг">
     </div>
 </div>
 
-<!-- Блок 2: картинка слева, текст справа -->
 <div class="row feature-block align-items-center">
     <div class="col-md-6 feature-image order-md-1 order-2">
         <img src="{% static 'catalog/фон_главная23.jpg' %}" alt="Коллекции">
     </div>
     <div class="col-md-6 feature-text order-md-2 order-1">
         <h3>Создавай коллекции для любых целей</h3>
-        <p>Группируй книги по настроению, жанру или собственным проектам. Одна книга может быть в нескольких коллекциях — так удобнее находить нужное.</p>
+        <p>Группируй книги по настроению, жанру или собственным проектам. Одна книга может быть в нескольких коллекциях — так удобнее находить нужное!</p>
     </div>
 </div>
 
-<!-- Блок 3: текст слева, картинка справа -->
 <div class="row feature-block align-items-center">
     <div class="col-md-6 feature-text">
         <h3>Участвуй в книжном вызове</h3>
-        <p>Ставь цель на год, следи за прогрессом и получай удовольствие от выполнения. Книжный вызов поможет читать больше и системно.</p>
+        <p>Ставь цель на год, следи за прогрессом и получай удовольствие от выполнения. Книжный вызов поможет читать больше и системно!</p>
     </div>
     <div class="col-md-6 feature-image">
         <img src="{% static 'catalog/фон_главная22.jpg' %}" alt="Книжный вызов">
     </div>
 </div>
 
+<!-- === Рекламный блок: Книги-сюрприз === -->
+<div class="row feature-block align-items-center" style="margin-bottom: 8rem; background-color: rgba(230, 215, 196, 0.7); border-radius: 30px; padding: 2.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+    <div class="col-md-6 feature-text">
+        <div class="d-flex align-items-center mb-3">
+            <span class="badge px-3 py-2 rounded-pill" style="background-color: #797b3a !important; color: white !important; font-size: 1rem;">🎁 НОВИНКА</span>
+        </div>
+        <h3 style="font-family: 'Great Vibes', cursive; color: #3e2c1f; font-size: 3.2rem; margin-bottom: 1.5rem;">Участвуй в книжной лотерее!</h3>
+        <p style="color: #4a3727; line-height: 1.6; font-size: 1.6rem; margin-bottom: 1.5rem;">
+            🎲 <strong>Книжная лотерея</strong> — случайная, но тщательно подобранная книга в подарочной упаковке. 
+            Отличный подарок себе или близким!
+        </p>
+        <p style="color: #4a3727; font-size: 1.4rem; margin-bottom: 1.5rem;">
+            🎁 Внутри вас ждут: <strong>стикеры, закладки, бумажные трекеры</strong> и другие милые сюрпризы. 
+            Индивидуальная аннотация-загадка раскроется только при прочтении.
+        </p>
+        <p style="color: #4a3727; font-size: 1.4rem; margin-bottom: 2rem;">
+            💬 <strong>Как заказать:</strong> расскажите о своих вкусах, покажите книжные полки, 
+            и я подберу идеальную книгу специально для вас!
+        </p>
+        <div class="d-flex flex-wrap gap-3 mt-4">
+            <a href="https://t.me/mizelarca" target="_blank" class="btn btn-lg px-4 py-2" style="background-color: #694633; color: white; border-radius: 50px; font-size: 1.4rem;">
+                <i class="bi bi-telegram me-2"></i> Telegram-канал
+            </a>
+            <a href="https://t.me/millanett" target="_blank" class="btn btn-lg px-4 py-2" style="background-color: #26a5e4; color: white; border-radius: 50px; font-size: 1.4rem;">
+                <i class="bi bi-send me-2"></i> Заказать в TG
+            </a>
+            <a href="https://www.avito.ru/moskva/knigi_i_zhurnaly/kniga_syurpriz_7424513324?utm_campaign=native&utm_medium=item_page_android&utm_source=soc_sharing_seller" target="_blank" class="btn btn-lg px-4 py-2" style="background-color: #ff5500; color: white; border-radius: 50px; font-size: 1.4rem;">
+                <i class="bi bi-bag me-2"></i> Avito
+            </a>
+        </div>
+    </div>
+    <div class="col-md-6 feature-image text-center">
+        <img src="{% static 'catalog/книга_сюрприз.jpg' %}" alt="Книги-сюрприз" style="width: 100%; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+        <p class="mt-3 mb-0 text-muted small" style="font-size: 1.2rem;">📚 Книга + сюрприз внутри</p>
+    </div>
+</div>
+
 <!-- === Финальный призыв === -->
 <div class="cta-block">
     <h2>Хочешь создать свою библиотеку мечты?</h2>
-    <p class="lead mb-4">Мы поможем тебе организовать чтение и не терять любимые книги.</p>
+    <p class="lead mb-4">Мы поможем тебе организовать чтение и не терять любимые книги</p>
     {% if not user.is_authenticated %}
         <a href="{% url 'register' %}" class="btn btn-success btn-lg">Присоединиться сейчас</a>
     {% else %}
-        <a href="{% url 'dashboard' %}" class="btn btn-success btn-lg">Перейти в кабинет</a>
+        <a href="{% url 'dashboard' %}" class="btn btn-success btn-lg" style="
+    width: 100% !important;
+    max-width: 280px !important;
+    min-width: 200px !important;
+    display: block !important;
+    margin: 0 auto !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    font-size: 1.2rem !important;
+    padding: 0.75rem 1rem !important;
+    float: none !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+">Перейти в кабинет</a>
     {% endif %}
 </div>
 {% endblock %}

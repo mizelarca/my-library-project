@@ -3,22 +3,22 @@ from django.contrib.auth.models import User
 
 # Модель для авторов
 class Author(models.Model):
-    name = models.CharField(max_length=200, verbose_name="Имя автора")
-    
+    name = models.CharField(max_length=200, unique=True, verbose_name="Имя автора")
+
     def __str__(self):
         return self.name
-    
+
     class Meta:
         verbose_name = "Автор"
         verbose_name_plural = "Авторы"
 
 # Модель для жанров
 class Genre(models.Model):
-    name = models.CharField(max_length=100, verbose_name="Название жанра")
-    
+    name = models.CharField(max_length=100, unique=True, verbose_name="Название жанра")
+
     def __str__(self):
         return self.name
-    
+
     class Meta:
         verbose_name = "Жанр"
         verbose_name_plural = "Жанры"
@@ -31,12 +31,17 @@ class Status(models.Model):
         ('read', 'Прочитано'),
         ('abandoned', 'Брошено'),
     ]
-    
-    name = models.CharField(max_length=50, verbose_name="Статус", choices=STATUS_CHOICES, default='unread')
-    
+
+    name = models.CharField(
+        max_length=50,
+        verbose_name="Статус",
+        choices=STATUS_CHOICES,
+        default='unread'
+    )
+
     def __str__(self):
         return dict(self.STATUS_CHOICES).get(self.name, self.name)
-    
+
     class Meta:
         verbose_name = "Статус"
         verbose_name_plural = "Статусы"
@@ -59,43 +64,96 @@ class Book(models.Model):
         help_text="Оцените книгу от 0 до 5 звёзд"
     )
 
+    # Дополнительные поля
+    FORMAT_CHOICES = [
+        ('paper', 'Бумажная'),
+        ('ebook', 'Электронная'),
+        ('audio', 'Аудио'),
+    ]
+    format = models.CharField(
+        max_length=10,
+        choices=FORMAT_CHOICES,
+        blank=True,
+        null=True,
+        verbose_name="Формат"
+    )
+    notes = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Личные заметки"
+    )
+    series = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        verbose_name="Серия"
+    )
+    series_number = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        verbose_name="Номер в серии"
+    )
+
+    # НОВЫЕ ПОЛЯ ДЛЯ ДАТ ЧТЕНИЯ
+    date_started = models.DateField(
+        verbose_name="Дата начала чтения",
+        null=True,
+        blank=True,
+        help_text="Когда начали читать"
+    )
+    date_finished = models.DateField(
+        verbose_name="Дата окончания чтения",
+        null=True,
+        blank=True,
+        help_text="Когда закончили читать"
+    )
+
+    def __str__(self):
+        return f"{self.title} — {self.author.name}"
+
+    class Meta:
+        verbose_name = "Книга"
+        verbose_name_plural = "Книги"
+        ordering = ['-created_at']
+
+# Модель для коллекций
 class Collection(models.Model):
     """Коллекция книг пользователя"""
     name = models.CharField(max_length=200, verbose_name="Название коллекции")
     owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Владелец", related_name='collections')
     description = models.TextField(blank=True, null=True, verbose_name="Описание")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
-    
+
     # Связь с книгами через промежуточную модель
     books = models.ManyToManyField(Book, through='CollectionBook', related_name='collections')
-    
+
     def __str__(self):
         return self.name
-    
+
     class Meta:
         verbose_name = "Коллекция"
         verbose_name_plural = "Коллекции"
         ordering = ['-created_at']
 
+# Промежуточная модель для связи коллекции и книги
 class CollectionBook(models.Model):
     """Промежуточная модель для связи коллекции и книги"""
     collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     added_at = models.DateTimeField(auto_now_add=True)
-    # Можно добавить порядок сортировки
     order = models.PositiveIntegerField(default=0, blank=False, null=False)
-    
+
     class Meta:
         ordering = ['order']
         unique_together = ['collection', 'book']  # чтобы книга не дублировалась в коллекции
-    
+
     def __str__(self):
         return f"{self.book.title} в {self.collection.name}"
 
-# Создадим модель Книжный вызов
+# Модель книжного вызова
 class ReadingChallenge(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='challenge')
-    year = models.PositiveIntegerField(default=2026)  # можно автоматически определять
+    year = models.PositiveIntegerField(default=2026)
     goal = models.PositiveIntegerField(default=10, verbose_name="Цель (книг в год)")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -104,10 +162,42 @@ class ReadingChallenge(models.Model):
         return f"{self.user.username} – {self.goal} книг в {self.year}"
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True, verbose_name="Аватар")
-    bio = models.TextField(max_length=500, blank=True, verbose_name="О себе")
-    # можно добавить другие поля по желанию
-
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    bio = models.TextField(max_length=500, blank=True, null=True)
+    
+    # Новые поля
+    theme = models.CharField(max_length=10, choices=[('light', 'Светлая'), ('dark', 'Тёмная')], default='light')
+    language = models.CharField(max_length=10, choices=[('ru', 'Русский'), ('en', 'English')], default='ru')
+    
     def __str__(self):
-        return f"Профиль {self.user.username}"
+        return f'Профиль пользователя {self.user.username}'
+
+import os
+
+from django.db.models.signals import pre_save, pre_delete
+from django.dispatch import receiver
+
+@receiver(pre_save, sender=Book)
+def delete_old_cover(sender, instance, **kwargs):
+    if not instance.pk:
+        return
+    try:
+        old_cover = sender.objects.get(pk=instance.pk).cover_image
+    except sender.DoesNotExist:
+        return
+    if old_cover and old_cover != instance.cover_image:
+        if os.path.isfile(old_cover.path):
+            os.remove(old_cover.path)
+
+@receiver(pre_save, sender=Profile)
+def delete_old_avatar(sender, instance, **kwargs):
+    if not instance.pk:
+        return
+    try:
+        old_avatar = sender.objects.get(pk=instance.pk).avatar
+    except sender.DoesNotExist:
+        return
+    if old_avatar and old_avatar != instance.avatar:
+        if os.path.isfile(old_avatar.path):
+            os.remove(old_avatar.path)

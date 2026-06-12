@@ -17,7 +17,12 @@
 
 /* Общий фон страницы */
 body {
-    background-color: var(--bg-color);
+    /* Вертикальный градиент: сверху #efe9dd, внизу очень светлый */
+    background: linear-gradient(180deg, #efe9dd 0%, #fcf8f3 100%);
+    /* Можно использовать background-attachment: fixed; если хочешь, чтобы градиент был "приклеен" */
+    background-attachment: scroll; /* Градиент прокручивается вместе со страницей */
+    min-height: 100vh;
+    /* Остальные твои стили для body (шрифт, цвет текста) оставляем как есть */
     font-family: 'Open Sans', sans-serif;
     color: var(--text-color);
 }
@@ -652,4 +657,214 @@ main {
 .profile-card {
     background-color: #d1c4b3;
     border-radius: 10px;
+}
+
+/* === Улучшенная мобильная адаптация === */
+@media (max-width: 768px) {
+    /* Главная страница */
+.hero-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0; /* убираем лишние отступы */
+}
+
+.hero-buttons .btn {
+    width: 100%;
+    max-width: 300px; /* или можно убрать max-width, если хочешь на всю ширину */
+    margin: 0 auto;   /* центрируем */
+    white-space: normal;   /* разрешаем перенос текста */
+    word-break: break-word; /* если слово очень длинное */
+    box-sizing: border-box; /* чтобы padding не увеличивал ширину */
+}
+    /* Блоки преимуществ */
+    .feature-block {
+        padding: 1.5rem;
+    }
+    .feature-text h3 {
+        font-size: 2rem;
+        text-align: center;
+    }
+    .feature-text p {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+    .feature-image img {
+        width: 100%;
+        height: auto;
+        margin-top: 1rem;
+    }
+
+    /* Карточки книг на странице "Мои книги" */
+    .col-md-3.col-lg-2 {
+        width: 100%;
+        max-width: 100%;
+    }
+    .card {
+        margin-bottom: 1rem;
+    }
+    .card-title {
+        font-size: 1.2rem;
+    }
+    .card-text {
+        font-size: 0.9rem;
+    }
+
+    /* Навбар */
+    .navbar-nav .nav-link {
+        padding: 0.75rem 1rem !important;
+        font-size: 1.1rem;
+    }
+    .navbar-nav form button {
+        padding: 0.75rem 1rem !important;
+    }
+
+    /* Формы */
+    .form-container {
+        padding: 1rem;
+        margin: 0.5rem;
+    }
+    .auth-card {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    .form-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .form-actions .btn {
+        width: 100%;
+    }
+
+    /* Личный кабинет */
+    .dashboard-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    .dashboard-header .col-md-10,
+    .dashboard-header .col-md-2 {
+        width: 100%;
+        max-width: 100%;
+    }
+    .profile-card {
+        width: 100% !important;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    .col-md-6 {
+        width: 100%;
+    }
+    .stats-list-card .list-group-item {
+        font-size: 1rem;
+        padding: 0.75rem;
+    }
+    .reading-header {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .reading-header h2 {
+        font-size: 1.8rem !important;
+    }
+    .reading-header .dashboard-btn {
+        font-size: 1rem !important;
+        padding: 0.4rem 1rem !important;
+        white-space: nowrap;
+    }
+
+    /* Детальная страница книги */
+    .book-detail-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .book-detail-buttons .btn {
+        width: 100%;
+    }
+
+    /* Страница коллекции */
+    .collection-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .collection-header .btn-group {
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    .collection-header .btn-group .btn {
+        width: 100%;
+    }
+}
+
+/* Для очень маленьких экранов (до 480px) */
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 2.8rem !important;
+    }
+    .hero p {
+        font-size: 1.2rem !important;
+    }
+    .feature-text h3 {
+        font-size: 1.6rem;
+    }
+    .feature-text p {
+        font-size: 1rem;
+    }
+    .reading-header h2 {
+        font-size: 1.5rem !important;
+    }
+    .reading-header .dashboard-btn {
+        font-size: 0.9rem !important;
+        padding: 0.3rem 0.8rem !important;
+    }
+}
+
+/* Исправление для блока "Хочешь создать свою библиотеку мечты?" на мобильных */
+@media (max-width: 768px) {
+    .cta-block {
+        padding: 2rem 1rem;   /* уменьшаем отступы */
+        margin: 2rem 0;       /* задаём отступы сверху и снизу */
+        text-align: center;
+    }
+    .cta-block h2 {
+        font-size: 2rem;      /* уменьшаем заголовок */
+        word-break: break-word;
+    }
+    .cta-block .btn {
+        width: 100%;          /* кнопка на всю ширину */
+        max-width: 300px;     /* но не слишком широкая */
+        margin: 0 auto;       /* центрируем */
+        white-space: normal;  /* разрешаем перенос текста */
+        word-break: break-word;
+        box-sizing: border-box;
+        font-size: 1.2rem;    /* чуть меньше шрифт */
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* МОЩНОЕ исправление для кнопки "Перейти в кабинет" на телефонах */
+@media (max-width: 768px) {
+    div.cta-block a.btn.btn-success {
+        width: 100% !important;
+        max-width: 300px !important;
+        display: block !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        float: none !important;
+        box-sizing: border-box !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        font-size: 1.2rem !important;
+        padding: 0.75rem 1rem !important;
+        /* убираем лишние обтекания */
+        clear: both !important;
+    }
+}
+
+/* Исправление для мобильных: раздвигаем блоки статистики и вызова */
+@media (max-width: 768px) {
+    .row .col-md-6:first-child {
+        margin-bottom: 1.5rem;  /* можно увеличить до 2rem, если нужно */
+    }
 }

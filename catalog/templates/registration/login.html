@@ -6,8 +6,10 @@
 {% block extra_css %}
 <style>
     body {
-        background: linear-gradient(135deg, var(--bg-color) 0%, var(--secondary-bg) 100%);
+        /* Вертикальный градиент: сверху #efe9dd, внизу светлый */
+        background: linear-gradient(180deg, #efe9dd 0%, #f9f5ef 100%);
         min-height: 100vh;
+        background-attachment: scroll; /* чтобы градиент прокручивался */
     }
     .auth-card {
         background: rgba(255, 255, 255, 0.9);

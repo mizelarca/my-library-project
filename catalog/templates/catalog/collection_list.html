@@ -1,27 +1,163 @@
 {% extends 'catalog/base.html' %}
-{% block title %}Мои коллекции{% endblock %}
-{% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="display-4">Мои коллекции</h1> <!-- можно изменить размер -->
-    <a href="{% url 'collection_create' %}" class="btn btn-success">Новая коллекция</a>
-</div>
+{% load static %}
 
-{% if collections %}
-    <div class="row">
-        {% for collection in collections %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 static-card" style="background-color: #e6d7c4;">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ collection.name }}</h5>
-                        <p class="card-text">{{ collection.description|truncatechars:100 }}</p>
-                        <p class="text-muted small">{{ collection.books.count }} книг</p>
-                        <a href="{% url 'collection_detail' collection.id %}" class="btn btn-sm btn-outline-primary">Открыть</a>
-                    </div>
-                </div>
+{% block title %}Мои коллекции{% endblock %}
+
+{% block content %}
+<div class="collection-list">
+    <h1 class="display-4 mb-4">Мои коллекции</h1>
+
+    <!-- Сообщения -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         {% endfor %}
+    {% endif %}
+
+    <!-- Поиск и фильтры -->
+    <form method="get" class="mb-4">
+        <div class="row g-2">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="Поиск по названию" value="{{ search_query }}">
+            </div>
+            <div class="col-md-3">
+                <select name="has_books" class="form-select">
+                    <option value="">Все коллекции</option>
+                    <option value="yes" {% if has_books == 'yes' %}selected{% endif %}>Есть книги</option>
+                    <option value="no" {% if has_books == 'no' %}selected{% endif %}>Пустые</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="sort" class="form-select">
+                    <option value="name" {% if sort_by == 'name' %}selected{% endif %}>По названию (А-Я)</option>
+                    <option value="-name" {% if sort_by == '-name' %}selected{% endif %}>По названию (Я-А)</option>
+                    <option value="created" {% if sort_by == 'created' %}selected{% endif %}>Сначала новые</option>
+                    <option value="created_asc" {% if sort_by == 'created_asc' %}selected{% endif %}>Сначала старые</option>
+                    <option value="books_count" {% if sort_by == 'books_count' %}selected{% endif %}>Больше книг</option>
+                    <option value="books_count_asc" {% if sort_by == 'books_count_asc' %}selected{% endif %}>Меньше книг</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100 h-100 d-flex align-items-center justify-content-center" style="padding-top: 0; padding-bottom: 0; background-color: #797b3a; border-color: #797b3a;">Применить</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Форма для массового удаления -->
+    <form method="post" action="{% url 'bulk_delete_collections' %}" id="bulkDeleteForm" onsubmit="return confirmDeleteSelected();">
+        {% csrf_token %}
+        <input type="hidden" name="collection_ids" id="selectedCollectionIds">
+    </form>
+
+    <!-- Кнопка создания коллекции и массового удаления -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div class="d-flex gap-2">
+            <a href="{% url 'collection_create' %}" class="btn btn-success text-white" style="background-color: #797b3a; border-color: #797b3a;">Новая коллекция</a>
+            <button type="button" id="bulkDeleteBtn" class="btn btn-danger" style="background-color: #dc3545; border-color: #dc3545; display: none;">
+                <i class="bi bi-trash me-1"></i> Удалить выбранные
+            </button>
+        </div>
     </div>
-{% else %}
-    <p class="text-muted">У вас пока нет коллекций. 
-{% endif %}
+
+    {% if page_obj %}
+        <div class="row">
+            {% for collection in page_obj %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 static-card" style="background-color: #e6d7c4; position: relative;">
+                        <!-- Чекбокс для выбора коллекции -->
+                        <div class="position-absolute top-0 start-0 p-2" style="z-index: 10;">
+                            <input type="checkbox" class="collection-checkbox form-check-input" data-collection-id="{{ collection.id }}" style="transform: scale(1.2);">
+                        </div>
+                        <a href="{% url 'collection_detail' collection.id %}" class="stretched-link"></a>
+                        <div class="card-body" style="padding-left: 2.5rem; padding-right: 1rem;">
+                            <h5 class="card-title text-center" style="word-break: break-word;">{{ collection.name }}</h5>
+                            {% if collection.description %}
+                                <p class="card-text text-center" style="font-size: 0.9rem;">{{ collection.description|truncatechars:80 }}</p>
+                            {% endif %}
+                            <p class="text-muted small text-center">{{ collection.books.count }} книг</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Пагинация в стиле сайта -->
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if has_books %}has_books={{ has_books }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}page=1" style="background-color: #d1c4b3; border-color: #a58d76; color: #3e2c1f;">«</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if has_books %}has_books={{ has_books }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}page={{ page_obj.previous_page_number }}" style="background-color: #d1c4b3; border-color: #a58d76; color: #3e2c1f;">‹</a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link" style="background-color: #797b3a; border-color: #797b3a; color: white;">
+                        {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+                    </span>
+                </li>
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if has_books %}has_books={{ has_books }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}page={{ page_obj.next_page_number }}" style="background-color: #d1c4b3; border-color: #a58d76; color: #3e2c1f;">›</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if has_books %}has_books={{ has_books }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}page={{ page_obj.paginator.num_pages }}" style="background-color: #d1c4b3; border-color: #a58d76; color: #3e2c1f;">»</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% else %}
+        <p class="text-muted">У вас пока нет коллекций. <a href="{% url 'collection_create' %}">Создайте первую!</a></p>
+    {% endif %}
+</div>
+
+<script>
+    // Массовое удаление коллекций
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkboxes = document.querySelectorAll('.collection-checkbox');
+        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+        const selectedCollectionIds = document.getElementById('selectedCollectionIds');
+        const bulkDeleteForm = document.getElementById('bulkDeleteForm');
+
+        function updateDeleteButton() {
+            const checkedCount = document.querySelectorAll('.collection-checkbox:checked').length;
+            if (checkedCount > 0) {
+                bulkDeleteBtn.style.display = 'block';
+                bulkDeleteBtn.innerText = `Удалить выбранные (${checkedCount})`;
+            } else {
+                bulkDeleteBtn.style.display = 'none';
+            }
+        }
+
+        window.confirmDeleteSelected = function() {
+            const checkedCount = document.querySelectorAll('.collection-checkbox:checked').length;
+            if (checkedCount === 0) {
+                alert('Выберите хотя бы одну коллекцию для удаления');
+                return false;
+            }
+            return confirm(`Вы уверены, что хотите удалить ${checkedCount} коллекций? Это действие нельзя отменить.`);
+        }
+
+        // Обработчик для чекбоксов
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateDeleteButton);
+        });
+
+        // Обработчик для кнопки удаления
+        if (bulkDeleteBtn) {
+            bulkDeleteBtn.addEventListener('click', function() {
+                const checkedBoxes = document.querySelectorAll('.collection-checkbox:checked');
+                const ids = Array.from(checkedBoxes).map(cb => cb.dataset.collectionId);
+                selectedCollectionIds.value = ids.join(',');
+                bulkDeleteForm.submit();
+            });
+        }
+    });
+</script>
 {% endblock %}

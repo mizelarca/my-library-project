@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Тест загрузки файла</title>
+</head>
+<body>
+    <h2>Тест загрузки аватара</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="test_avatar">
+        <button type="submit">Загрузить</button>
+    </form>
+</body>
+</html>
