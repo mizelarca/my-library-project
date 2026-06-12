@@ -82,6 +82,11 @@ class Book(models.Model):
         null=True,
         verbose_name="Личные заметки"
     )
+    quotes = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Цитаты из книги"
+    )
     series = models.CharField(
         max_length=200,
         blank=True,
@@ -93,7 +98,6 @@ class Book(models.Model):
         null=True,
         verbose_name="Номер в серии"
     )
-
     # НОВЫЕ ПОЛЯ ДЛЯ ДАТ ЧТЕНИЯ
     date_started = models.DateField(
         verbose_name="Дата начала чтения",

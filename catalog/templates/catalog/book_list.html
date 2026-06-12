@@ -1,30 +1,22 @@
 {% extends 'catalog/base.html' %}
 {% load static %}
 
-{% block title %}Мои книги{% endblock %}
+{% block title %}{% if user_language == 'en' %}My books{% else %}Мои книги{% endif %}{% endblock %}
 
 {% block content %}
-<h1 class="display-4 mb-4">Мои книги</h1>
+<h1 class="display-4 mb-4">{% if user_language == 'en' %}My books{% else %}Мои книги{% endif %}</h1>
 
 <!-- Сообщения -->
-{% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    {% endfor %}
-{% endif %}
 
 <!-- Поиск и фильтры -->
 <form method="get" class="mb-4">
     <div class="row g-2">
         <div class="col-md-4">
-            <input type="text" name="search" class="form-control" placeholder="Поиск по названию" value="{{ search_query }}">
+            <input type="text" name="search" class="form-control" placeholder="{% if user_language == 'en' %}Search by title{% else %}Поиск по названию{% endif %}" value="{{ search_query }}">
         </div>
         <div class="col-md-2">
             <select name="status" class="form-select">
-                <option value="">Все статусы</option>
+                <option value="">{% if user_language == 'en' %}All statuses{% else %}Все статусы{% endif %}</option>
                 {% for status in all_statuses %}
                     <option value="{{ status.name }}" {% if status_filter == status.name %}selected{% endif %}>
                         {{ status.get_name_display }}
@@ -34,7 +26,7 @@
         </div>
         <div class="col-md-2">
             <select name="genre" class="form-select">
-                <option value="">Все жанры</option>
+                <option value="">{% if user_language == 'en' %}All genres{% else %}Все жанры{% endif %}</option>
                 {% for genre in all_genres %}
                     <option value="{{ genre.name }}" {% if genre_filter == genre.name %}selected{% endif %}>
                         {{ genre.name }}
@@ -44,15 +36,15 @@
         </div>
         <div class="col-md-2">
             <select name="sort" class="form-select">
-                <option value="-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>Новые сначала</option>
-                <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>Старые сначала</option>
-                <option value="title" {% if sort_by == 'title' %}selected{% endif %}>По названию</option>
-                <option value="author__name" {% if sort_by == 'author__name' %}selected{% endif %}>По автору</option>
-                <option value="-rating" {% if sort_by == '-rating' %}selected{% endif %}>По оценке</option>
+                <option value="-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>{% if user_language == 'en' %}Newest first{% else %}Новые сначала{% endif %}</option>
+                <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>{% if user_language == 'en' %}Oldest first{% else %}Старые сначала{% endif %}</option>
+                <option value="title" {% if sort_by == 'title' %}selected{% endif %}>{% if user_language == 'en' %}By title{% else %}По названию{% endif %}</option>
+                <option value="author__name" {% if sort_by == 'author__name' %}selected{% endif %}>{% if user_language == 'en' %}By author{% else %}По автору{% endif %}</option>
+                <option value="-rating" {% if sort_by == '-rating' %}selected{% endif %}>{% if user_language == 'en' %}By rating{% else %}По оценке{% endif %}</option>
             </select>
         </div>
         <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100 h-100 d-flex align-items-center justify-content-center" style="padding-top: 0; padding-bottom: 0; background-color: #797b3a; border-color: #797b3a;">Применить</button>
+            <button type="submit" class="btn btn-primary w-100 h-100 d-flex align-items-center justify-content-center" style="padding-top: 0; padding-bottom: 0; background-color: #797b3a; border-color: #797b3a;">{% if user_language == 'en' %}Apply{% else %}Применить{% endif %}</button>
         </div>
     </div>
 </form>
@@ -68,11 +60,16 @@
     <!-- Левая группа: Добавить книгу + Экспорт + Импорт -->
     <div class="d-flex gap-2 flex-wrap align-items-center">
         <!-- Добавить книгу (увеличенная, заметная) -->
-        <a href="{% url 'book_add' %}" class="btn" style="background-color: #797b3a; color: white; border: none; border-radius: 50px; padding: 0.6rem 1.5rem; font-size: 1.1rem; font-weight: 500; text-decoration: none;">Добавить книгу</a>
+        <a href="{% url 'book_add' %}" class="btn" style="background-color: #797b3a; color: white; border: none; border-radius: 50px; padding: 0.6rem 1.5rem; font-size: 1.1rem; font-weight: 500; text-decoration: none;">{% if user_language == 'en' %}Add book{% else %}Добавить книгу{% endif %}</a>
+
+<button type="button" id="bulkDeleteBtn" class="btn btn-danger" style="display: none;">
+    <i class="bi bi-trash me-1"></i> {% if user_language == 'en' %}Delete selected{% else %}Удалить выбранные{% endif %}
+</button>
+
         <!-- Экспорт -->
         <div class="dropdown d-inline-block">
             <button type="button" class="btn" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: transparent; border: none; color: #797b3a; padding: 0.6rem 1rem; font-size: 1rem;">
-                <i class="bi bi-download me-1"></i> Экспорт
+                <i class="bi bi-download me-1"></i> {% if user_language == 'en' %}Export{% else %}Экспорт{% endif %}
             </button>
             <ul class="dropdown-menu" aria-labelledby="exportDropdown" style="background-color: #efe9dd; border-color: #d1c4b3;">
                 <li><a class="dropdown-item" href="{% url 'export_books' %}" style="color: #3e2c1f;">CSV (UTF-8)</a></li>
@@ -81,7 +78,7 @@
         </div>
         <!-- Импорт -->
         <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#importModal" style="background: transparent; border: none; color: #797b3a; padding: 0.6rem 1rem; font-size: 1rem;">
-            <i class="bi bi-upload me-1"></i> Импорт
+            <i class="bi bi-upload me-1"></i> {% if user_language == 'en' %}Import{% else %}Импорт{% endif %}
         </button>
     </div>
 
@@ -90,12 +87,12 @@
         <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}{% if genre_filter %}genre={{ genre_filter }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}view=grid"
            class="btn {% if view_mode == 'grid' %}btn-primary{% else %}btn-outline-secondary{% endif %}"
            style="{% if view_mode == 'grid' %}background-color: #d1c4b3; border-color: #d1c4b3; color: #000;{% else %}border-color: #a58d76; color: #3e2c1f;{% endif %} border-radius: 50px; padding: 0.5rem 1rem; font-size: 1rem;">
-            <i class="bi bi-grid-3x3-gap-fill"></i> Плитка
+            <i class="bi bi-grid-3x3-gap-fill"></i> {% if user_language == 'en' %}Grid{% else %}Плитка{% endif %}
         </a>
         <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}{% if genre_filter %}genre={{ genre_filter }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}view=list"
            class="btn {% if view_mode == 'list' %}btn-primary{% else %}btn-outline-secondary{% endif %}"
            style="{% if view_mode == 'list' %}background-color: #d1c4b3; border-color: #d1c4b3; color: #000;{% else %}border-color: #a58d76; color: #3e2c1f;{% endif %} border-radius: 50px; padding: 0.5rem 1rem; font-size: 1rem;">
-            <i class="bi bi-list-ul"></i> Список
+            <i class="bi bi-list-ul"></i> {% if user_language == 'en' %}List{% else %}Список{% endif %}
         </a>
     </div>
 </div>
@@ -105,27 +102,27 @@
     <div class="modal-dialog">
         <div class="modal-content" style="background-color: #efe9dd; border-radius: 20px;">
             <div class="modal-header" style="border-bottom-color: #d1c4b3;">
-                <h5 class="modal-title" id="importModalLabel" style="font-family: 'Great Vibes', cursive; color: #3e2c1f;">Импорт книг</h5>
+                <h5 class="modal-title" id="importModalLabel" style="font-family: 'Great Vibes', cursive; color: #3e2c1f;">{% if user_language == 'en' %}Import books{% else %}Импорт книг{% endif %}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="post" action="{% url 'import_books' %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="importFile" class="form-label">Выберите CSV или XLSX файл</label>
+                        <label for="importFile" class="form-label">{% if user_language == 'en' %}Select CSV or XLSX file{% else %}Выберите CSV или XLSX файл{% endif %}</label>
                         <input type="file" class="form-control" id="importFile" name="file" accept=".csv,.xlsx" required>
                         <div class="form-text text-muted mt-2">
-                            <i class="bi bi-info-circle"></i> Файл должен содержать колонки:
-                            Название книги, Автор, Жанр, Статус, Оценка, Описание, Формат, Серия, Номер в серии, Заметки, Дата начала чтения, Дата окончания чтения
+                            <i class="bi bi-info-circle"></i> {% if user_language == 'en' %}The file must contain columns:{% else %}Файл должен содержать колонки:{% endif %}
+                            {% if user_language == 'en' %}Book title, Author, Genre, Status, Rating, Description, Format, Series, Series number, Notes, Start date, End date{% else %}Название книги, Автор, Жанр, Статус, Оценка, Описание, Формат, Серия, Номер в серии, Заметки, Дата начала чтения, Дата окончания чтения{% endif %}
                         </div>
                     </div>
                     <div class="alert alert-info small">
-                        <i class="bi bi-download"></i> Сначала скачайте пример файла через кнопку "Экспорт", чтобы увидеть правильный формат.
+                        <i class="bi bi-download"></i> {% if user_language == 'en' %}First download a sample file via the "Export" button to see the correct format.{% else %}Сначала скачайте пример файла через кнопку "Экспорт", чтобы увидеть правильный формат.{% endif %}
                     </div>
                 </div>
                 <div class="modal-footer" style="border-top-color: #d1c4b3;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: #d1c4b3; color: #3e2c1f;">Отмена</button>
-                    <button type="submit" class="btn btn-primary" style="background-color: #797b3a; border-color: #797b3a;">Импортировать</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: #d1c4b3; color: #3e2c1f;">{% if user_language == 'en' %}Cancel{% else %}Отмена{% endif %}</button>
+                    <button type="submit" class="btn btn-primary" style="background-color: #797b3a; border-color: #797b3a;">{% if user_language == 'en' %}Import{% else %}Импортировать{% endif %}</button>
                 </div>
             </form>
         </div>
@@ -167,9 +164,9 @@
                                     {% endif %}
                                 {% endfor %}
                             </div>
-                            <form method="post" action="{% url 'book_delete' book.id %}" class="d-inline" onsubmit="return confirm('Вы уверены, что хотите удалить книгу?');">
+                            <form method="post" action="{% url 'book_delete' book.id %}" class="d-inline" onsubmit="return confirm('{% if user_language == 'en' %}Are you sure you want to delete this book?{% else %}Вы уверены, что хотите удалить книгу?{% endif %}');">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-outline-danger position-relative" style="z-index: 2; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-color: #a58d76; color: #a58d76;">Удалить</button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger position-relative" style="z-index: 2; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-color: #a58d76; color: #a58d76;">{% if user_language == 'en' %}Delete{% else %}Удалить{% endif %}</button>
                             </form>
                         </div>
                     </div>
@@ -209,7 +206,7 @@
 
             <li class="page-item active">
                 <span class="page-link" style="background-color: #797b3a; border-color: #797b3a; color: white;">
-                    {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+                    {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
                 </span>
             </li>
 
@@ -224,7 +221,7 @@
         </ul>
     </nav>
 {% else %}
-    <p class="text-muted">У вас пока нет книг</p>
+    <p class="text-muted">{% if user_language == 'en' %}You have no books yet{% else %}У вас пока нет книг{% endif %}</p>
 {% endif %}
 
 <style>
@@ -268,7 +265,7 @@
             const checkedCount = document.querySelectorAll('.book-checkbox:checked').length;
             if (checkedCount > 0) {
                 bulkDeleteBtn.style.display = 'block';
-                bulkDeleteBtn.innerText = `Удалить выбранные (${checkedCount})`;
+                bulkDeleteBtn.innerText = `{% if user_language == 'en' %}Delete selected (${checkedCount}){% else %}Удалить выбранные (${checkedCount}){% endif %}`;
             } else {
                 bulkDeleteBtn.style.display = 'none';
             }
@@ -277,10 +274,10 @@
         window.confirmDeleteSelected = function() {
             const checkedCount = document.querySelectorAll('.book-checkbox:checked').length;
             if (checkedCount === 0) {
-                alert('Выберите хотя бы одну книгу для удаления');
+                alert('{% if user_language == 'en' %}Select at least one book to delete{% else %}Выберите хотя бы одну книгу для удаления{% endif %}');
                 return false;
             }
-            return confirm(`Вы уверены, что хотите удалить ${checkedCount} книг? Это действие нельзя отменить.`);
+            return confirm(`{% if user_language == 'en' %}Are you sure you want to delete ${checkedCount} book(s)? This action cannot be undone.{% else %}Вы уверены, что хотите удалить ${checkedCount} книг? Это действие нельзя отменить.{% endif %}`);
         }
 
         checkboxes.forEach(checkbox => {
@@ -295,6 +292,15 @@
                 bulkDeleteForm.submit();
             });
         }
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.card-item');
+        cards.forEach((card, index) => {
+            const delay = (index % 12) * 0.1; // задержка от 0 до 1.1 с
+            card.style.animationDelay = `${delay}s`;
+        });
     });
 </script>
 {% endblock %}

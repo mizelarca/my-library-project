@@ -1,57 +1,57 @@
 {% extends 'catalog/base.html' %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}{% if user_language == 'en' %}{{ title }}{% else %}{{ title }}{% endif %}{% endblock %}
 
 {% block content %}
 <div class="form-container book-form">
-    <h1 class="text-center mb-4">{{ title }}</h1>
+    <h1 class="text-center mb-4">{% if user_language == 'en' %}{% if title == 'Добавить книгу' %}Add book{% elif title == 'Редактировать книгу' %}Edit book{% else %}{{ title }}{% endif %}{% else %}{{ title }}{% endif %}</h1>
 
     <form method="post" enctype="multipart/form-data" class="book-form">
         {% csrf_token %}
 
         <div class="mb-3">
-            <label for="{{ form.title.id_for_label }}" class="form-label">Название книги</label>
+            <label for="{{ form.title.id_for_label }}" class="form-label">{% if user_language == 'en' %}Book title{% else %}Название книги{% endif %}</label>
             {{ form.title }}
         </div>
 
         <!-- Поле Автор -->
         <div class="mb-3 row">
             <div class="col-md-8 col-8">
-                <label for="{{ form.author.id_for_label }}" class="form-label">Автор</label>
+                <label for="{{ form.author.id_for_label }}" class="form-label">{% if user_language == 'en' %}Author{% else %}Автор{% endif %}</label>
                 {{ form.author }}
             </div>
             <div class="col-md-4 col-4 d-flex align-items-end">
-                <a href="{% url 'author_add' %}?next=book_add" class="btn btn-sm btn-outline-primary w-100">Новый автор</a>
+                <a href="{% url 'author_add' %}?next=book_add" class="btn btn-sm btn-outline-primary w-100">{% if user_language == 'en' %}New author{% else %}Новый автор{% endif %}</a>
             </div>
         </div>
 
         <!-- Поле Жанр -->
         <div class="mb-3 row">
             <div class="col-md-8 col-8">
-                <label for="{{ form.genre.id_for_label }}" class="form-label">Жанр</label>
+                <label for="{{ form.genre.id_for_label }}" class="form-label">{% if user_language == 'en' %}Genre{% else %}Жанр{% endif %}</label>
                 {{ form.genre }}
             </div>
             <div class="col-md-4 col-4 d-flex align-items-end">
-                <a href="{% url 'genre_add' %}?next=book_add" class="btn btn-sm btn-outline-primary w-100">Новый жанр</a>
+                <a href="{% url 'genre_add' %}?next=book_add" class="btn btn-sm btn-outline-primary w-100">{% if user_language == 'en' %}New genre{% else %}Новый жанр{% endif %}</a>
             </div>
         </div>
 
         <div class="mb-3">
-            <label for="{{ form.status.id_for_label }}" class="form-label">Статус</label>
+            <label for="{{ form.status.id_for_label }}" class="form-label">{% if user_language == 'en' %}Status{% else %}Статус{% endif %}</label>
             {{ form.status }}
         </div>
 
         <!-- Блок обложки -->
         <div class="mb-3">
-            <label class="form-label">Обложка</label>
+            <label class="form-label">{% if user_language == 'en' %}Cover{% else %}Обложка{% endif %}</label>
 
             {% if form.instance.cover_image %}
                 <div class="mb-2 p-2 rounded" style="background-color: #e6d7c4;">
                     <div class="d-flex align-items-center gap-3 flex-wrap">
-                        <span class="text-muted small">📷 Фото добавлено</span>
+                        <span class="text-muted small">📷 {% if user_language == 'en' %}Photo added{% else %}Фото добавлено{% endif %}</span>
                         <div class="form-check mb-0">
                             <input type="checkbox" name="cover_image-clear" id="cover_image-clear_id" class="form-check-input">
-                            <label for="cover_image-clear_id" class="form-check-label small">Очистить</label>
+                            <label for="cover_image-clear_id" class="form-check-label small">{% if user_language == 'en' %}Clear{% else %}Очистить{% endif %}</label>
                         </div>
                     </div>
                 </div>
@@ -63,34 +63,40 @@
         </div>
 
         <div class="mb-3">
-            <label for="{{ form.description.id_for_label }}" class="form-label">Описание</label>
+            <label for="{{ form.description.id_for_label }}" class="form-label">{% if user_language == 'en' %}Description{% else %}Описание{% endif %}</label>
             {{ form.description }}
         </div>
 
-        <!-- Дополнительные поля -->
-        <div class="mb-3">
-            <label for="{{ form.format.id_for_label }}" class="form-label">Формат</label>
-            {{ form.format }}
-        </div>
+        
+<!-- Дополнительные поля -->
+<div class="mb-3">
+    <label for="{{ form.format.id_for_label }}" class="form-label">{% if user_language == 'en' %}Format{% else %}Формат{% endif %}</label>
+    {{ form.format }}
+</div>
 
-        <div class="mb-3">
-            <label for="{{ form.series.id_for_label }}" class="form-label">Серия</label>
-            {{ form.series }}
-        </div>
+<div class="mb-3">
+    <label for="{{ form.series.id_for_label }}" class="form-label">{% if user_language == 'en' %}Series{% else %}Серия{% endif %}</label>
+    {{ form.series }}
+</div>
 
-        <div class="mb-3">
-            <label for="{{ form.series_number.id_for_label }}" class="form-label">Номер в серии</label>
-            {{ form.series_number }}
-        </div>
+<div class="mb-3">
+    <label for="{{ form.series_number.id_for_label }}" class="form-label">{% if user_language == 'en' %}Series number{% else %}Номер в серии{% endif %}</label>
+    {{ form.series_number }}
+</div>
 
-        <div class="mb-3">
-            <label for="{{ form.notes.id_for_label }}" class="form-label">Личные заметки</label>
-            <textarea name="notes" id="{{ form.notes.id_for_label }}" class="form-control" rows="3">{% if form.notes.value %}{{ form.notes.value }}{% endif %}</textarea>
-        </div>
+<div class="mb-3">
+    <label for="{{ form.notes.id_for_label }}" class="form-label">{% if user_language == 'en' %}Personal notes{% else %}Личные заметки{% endif %}</label>
+    <textarea name="notes" id="{{ form.notes.id_for_label }}" class="form-control" rows="3">{% if form.notes.value %}{{ form.notes.value }}{% endif %}</textarea>
+</div>
+
+<div class="mb-3">
+    <label for="{{ form.quotes.id_for_label }}" class="form-label">{% if user_language == 'en' %}Quotes{% else %}Цитаты{% endif %}</label>
+    {{ form.quotes }}
+</div>
 
         <!-- Поле рейтинга -->
         <div class="mb-3">
-            <label class="form-label">Оценка</label>
+            <label class="form-label">{% if user_language == 'en' %}Rating{% else %}Оценка{% endif %}</label>
             <div class="rating-input">
                 <input type="hidden" name="rating" id="rating" value="{{ form.rating.value|default:0 }}">
                 <span class="star" data-value="1">★</span>
@@ -103,18 +109,18 @@
 
         <!-- Даты чтения -->
         <div class="mb-3">
-            <label for="{{ form.date_started.id_for_label }}" class="form-label">Дата начала чтения</label>
+            <label for="{{ form.date_started.id_for_label }}" class="form-label">{% if user_language == 'en' %}Start date{% else %}Дата начала чтения{% endif %}</label>
             {{ form.date_started }}
         </div>
 
         <div class="mb-3">
-            <label for="{{ form.date_finished.id_for_label }}" class="form-label">Дата окончания чтения</label>
+            <label for="{{ form.date_finished.id_for_label }}" class="form-label">{% if user_language == 'en' %}Finish date{% else %}Дата окончания чтения{% endif %}</label>
             {{ form.date_finished }}
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Сохранить</button>
-            <a href="{% url 'book_list' %}" class="btn btn-secondary">Отмена</a>
+            <button type="submit" class="btn btn-primary">{% if user_language == 'en' %}Save{% else %}Сохранить{% endif %}</button>
+            <a href="{% url 'book_list' %}" class="btn btn-secondary">{% if user_language == 'en' %}Cancel{% else %}Отмена{% endif %}</a>
         </div>
     </form>
 </div>

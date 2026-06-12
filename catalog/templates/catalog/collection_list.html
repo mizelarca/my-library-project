@@ -1,47 +1,40 @@
 {% extends 'catalog/base.html' %}
 {% load static %}
 
-{% block title %}Мои коллекции{% endblock %}
+{% block title %}{% if user_language == 'en' %}My collections{% else %}Мои коллекции{% endif %}{% endblock %}
 
 {% block content %}
 <div class="collection-list">
-    <h1 class="display-4 mb-4">Мои коллекции</h1>
+    <h1 class="display-4 mb-4">{% if user_language == 'en' %}My collections{% else %}Мои коллекции{% endif %}</h1>
 
-    <!-- Сообщения -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
+ <!-- Сообщения -->
+
 
     <!-- Поиск и фильтры -->
     <form method="get" class="mb-4">
         <div class="row g-2">
             <div class="col-md-4">
-                <input type="text" name="search" class="form-control" placeholder="Поиск по названию" value="{{ search_query }}">
+                <input type="text" name="search" class="form-control" placeholder="{% if user_language == 'en' %}Search by name{% else %}Поиск по названию{% endif %}" value="{{ search_query }}">
             </div>
             <div class="col-md-3">
                 <select name="has_books" class="form-select">
-                    <option value="">Все коллекции</option>
-                    <option value="yes" {% if has_books == 'yes' %}selected{% endif %}>Есть книги</option>
-                    <option value="no" {% if has_books == 'no' %}selected{% endif %}>Пустые</option>
+                    <option value="">{% if user_language == 'en' %}All collections{% else %}Все коллекции{% endif %}</option>
+                    <option value="yes" {% if has_books == 'yes' %}selected{% endif %}>{% if user_language == 'en' %}Has books{% else %}Есть книги{% endif %}</option>
+                    <option value="no" {% if has_books == 'no' %}selected{% endif %}>{% if user_language == 'en' %}Empty{% else %}Пустые{% endif %}</option>
                 </select>
             </div>
             <div class="col-md-3">
                 <select name="sort" class="form-select">
-                    <option value="name" {% if sort_by == 'name' %}selected{% endif %}>По названию (А-Я)</option>
-                    <option value="-name" {% if sort_by == '-name' %}selected{% endif %}>По названию (Я-А)</option>
-                    <option value="created" {% if sort_by == 'created' %}selected{% endif %}>Сначала новые</option>
-                    <option value="created_asc" {% if sort_by == 'created_asc' %}selected{% endif %}>Сначала старые</option>
-                    <option value="books_count" {% if sort_by == 'books_count' %}selected{% endif %}>Больше книг</option>
-                    <option value="books_count_asc" {% if sort_by == 'books_count_asc' %}selected{% endif %}>Меньше книг</option>
+                    <option value="name" {% if sort_by == 'name' %}selected{% endif %}>{% if user_language == 'en' %}By name (A-Z){% else %}По названию (А-Я){% endif %}</option>
+                    <option value="-name" {% if sort_by == '-name' %}selected{% endif %}>{% if user_language == 'en' %}By name (Z-A){% else %}По названию (Я-А){% endif %}</option>
+                    <option value="created" {% if sort_by == 'created' %}selected{% endif %}>{% if user_language == 'en' %}Newest first{% else %}Сначала новые{% endif %}</option>
+                    <option value="created_asc" {% if sort_by == 'created_asc' %}selected{% endif %}>{% if user_language == 'en' %}Oldest first{% else %}Сначала старые{% endif %}</option>
+                    <option value="books_count" {% if sort_by == 'books_count' %}selected{% endif %}>{% if user_language == 'en' %}More books{% else %}Больше книг{% endif %}</option>
+                    <option value="books_count_asc" {% if sort_by == 'books_count_asc' %}selected{% endif %}>{% if user_language == 'en' %}Fewer books{% else %}Меньше книг{% endif %}</option>
                 </select>
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100 h-100 d-flex align-items-center justify-content-center" style="padding-top: 0; padding-bottom: 0; background-color: #797b3a; border-color: #797b3a;">Применить</button>
+                <button type="submit" class="btn btn-primary w-100 h-100 d-flex align-items-center justify-content-center" style="padding-top: 0; padding-bottom: 0; background-color: #797b3a; border-color: #797b3a;">{% if user_language == 'en' %}Apply{% else %}Применить{% endif %}</button>
             </div>
         </div>
     </form>
@@ -55,9 +48,9 @@
     <!-- Кнопка создания коллекции и массового удаления -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div class="d-flex gap-2">
-            <a href="{% url 'collection_create' %}" class="btn btn-success text-white" style="background-color: #797b3a; border-color: #797b3a;">Новая коллекция</a>
+            <a href="{% url 'collection_create' %}" class="btn btn-success text-white" style="background-color: #797b3a; border-color: #797b3a;">{% if user_language == 'en' %}New collection{% else %}Новая коллекция{% endif %}</a>
             <button type="button" id="bulkDeleteBtn" class="btn btn-danger" style="background-color: #dc3545; border-color: #dc3545; display: none;">
-                <i class="bi bi-trash me-1"></i> Удалить выбранные
+                <i class="bi bi-trash me-1"></i> {% if user_language == 'en' %}Delete selected{% else %}Удалить выбранные{% endif %}
             </button>
         </div>
     </div>
@@ -77,7 +70,7 @@
                             {% if collection.description %}
                                 <p class="card-text text-center" style="font-size: 0.9rem;">{{ collection.description|truncatechars:80 }}</p>
                             {% endif %}
-                            <p class="text-muted small text-center">{{ collection.books.count }} книг</p>
+                            <p class="text-muted small text-center">{{ collection.books.count }} {% if user_language == 'en' %}books{% else %}книг{% endif %}</p>
                         </div>
                     </div>
                 </div>
@@ -98,7 +91,7 @@
 
                 <li class="page-item active">
                     <span class="page-link" style="background-color: #797b3a; border-color: #797b3a; color: white;">
-                        {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+                        {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
                     </span>
                 </li>
 
@@ -113,7 +106,7 @@
             </ul>
         </nav>
     {% else %}
-        <p class="text-muted">У вас пока нет коллекций. <a href="{% url 'collection_create' %}">Создайте первую!</a></p>
+        <p class="text-muted">{% if user_language == 'en' %}You have no collections yet. <a href="{% url 'collection_create' %}">Create your first!</a>{% else %}У вас пока нет коллекций. <a href="{% url 'collection_create' %}">Создайте первую!</a>{% endif %}</p>
     {% endif %}
 </div>
 
@@ -129,7 +122,7 @@
             const checkedCount = document.querySelectorAll('.collection-checkbox:checked').length;
             if (checkedCount > 0) {
                 bulkDeleteBtn.style.display = 'block';
-                bulkDeleteBtn.innerText = `Удалить выбранные (${checkedCount})`;
+                bulkDeleteBtn.innerText = `{% if user_language == 'en' %}Delete selected (${checkedCount}){% else %}Удалить выбранные (${checkedCount}){% endif %}`;
             } else {
                 bulkDeleteBtn.style.display = 'none';
             }
@@ -138,10 +131,10 @@
         window.confirmDeleteSelected = function() {
             const checkedCount = document.querySelectorAll('.collection-checkbox:checked').length;
             if (checkedCount === 0) {
-                alert('Выберите хотя бы одну коллекцию для удаления');
+                alert('{% if user_language == 'en' %}Select at least one collection to delete{% else %}Выберите хотя бы одну коллекцию для удаления{% endif %}');
                 return false;
             }
-            return confirm(`Вы уверены, что хотите удалить ${checkedCount} коллекций? Это действие нельзя отменить.`);
+            return confirm(`{% if user_language == 'en' %}Are you sure you want to delete ${checkedCount} collection(s)? This action cannot be undone.{% else %}Вы уверены, что хотите удалить ${checkedCount} коллекций? Это действие нельзя отменить.{% endif %}`);
         }
 
         // Обработчик для чекбоксов

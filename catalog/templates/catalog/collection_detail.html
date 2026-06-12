@@ -4,9 +4,9 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="display-4">{{ collection.name }}</h1> <!-- можно изменить размер -->
     <div>
-        <a href="{% url 'collection_edit' collection.id %}" class="btn btn-sm btn-outline-secondary">Редактировать</a>
-        <a href="{% url 'collection_delete' collection.id %}" class="btn btn-sm btn-outline-danger">Удалить</a>
-        <a href="{% url 'collection_add_books' collection.id %}" class="btn btn-sm btn-success">Добавить книги</a>
+        <a href="{% url 'collection_edit' collection.id %}" class="btn btn-primary">{% if user_language == 'en' %}Edit{% else %}Редактировать{% endif %}</a>
+        <a href="{% url 'collection_delete' collection.id %}" class="btn btn-danger">{% if user_language == 'en' %}Delete{% else %}Удалить{% endif %}</a>
+        <a href="{% url 'collection_add_books' collection.id %}" class="btn btn-success">{% if user_language == 'en' %}Add books{% else %}Добавить книги{% endif %}</a>
     </div>
 </div>
 

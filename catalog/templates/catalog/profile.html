@@ -1,7 +1,7 @@
 {% extends 'catalog/base.html' %}
 {% load static %}
 
-{% block title %}Мой профиль{% endblock %}
+{% block title %}{% if user_language == 'en' %}My profile{% else %}Мой профиль{% endif %}{% endblock %}
 
 {% block content %}
 {% with user_language=user.profile.language|default:"ru" %}

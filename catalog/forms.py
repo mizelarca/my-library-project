@@ -11,7 +11,7 @@ class BookForm(forms.ModelForm):
             'title', 'author', 'genre', 'status',
             'cover_image', 'description', 'rating',
             'date_started', 'date_finished',
-            'format', 'notes', 'series', 'series_number'
+            'format', 'notes', 'quotes', 'series', 'series_number'
         ]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
@@ -24,6 +24,7 @@ class BookForm(forms.ModelForm):
             'genre': forms.Select(attrs={'class': 'form-select'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
             'cover_image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'quotes': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
             'format': forms.Select(attrs={'class': 'form-select'}),
             'rating': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 5, 'step': 1}),
         }

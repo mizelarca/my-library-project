@@ -178,7 +178,7 @@
 </style>
 {% endblock %}
 
-{% block title %}Добро пожаловать!{% endblock %}
+{% block title %}{% if user_language == 'en' %}Welcome!{% else %}Добро пожаловать!{% endif %}{% endblock %}
 
 {% block content %}
 <!-- === Верхний блок (герой) === -->
@@ -188,10 +188,10 @@
 <p>{% if user_language == 'en' %}Keep track of books you've read, track progress, create collections and never forget what you wanted to read.{% else %}Веди учёт прочитанных книг, отслеживай прогресс, создавай коллекции и никогда не забывай, что ты хотел почитать.{% endif %}</p>
         <div class="hero-buttons">
             {% if not user.is_authenticated %}
-                <a class="btn btn-primary btn-lg" href="{% url 'register' %}" role="button">Зарегистрироваться</a>
-                <a class="btn btn-outline-secondary btn-lg" href="{% url 'login' %}" role="button">Войти</a>
+                <a class="btn btn-primary btn-lg" href="{% url 'register' %}" role="button">{% if user_language == 'en' %}Register{% else %}Зарегистрироваться{% endif %}</a>
+                <a class="btn btn-outline-secondary btn-lg" href="{% url 'login' %}" role="button">{% if user_language == 'en' %}Login{% else %}Войти{% endif %}</a>
             {% else %}
-                <a class="btn btn-success btn-lg" href="{% url 'dashboard' %}" role="button">Перейти в кабинет</a>
+                <a class="btn btn-success btn-lg" href="{% url 'dashboard' %}" role="button">{% if user_language == 'en' %}Go to dashboard{% else %}Перейти в кабинет{% endif %}</a>
             {% endif %}
         </div>
     </div>
@@ -200,31 +200,31 @@
 <!-- === Блоки преимуществ === -->
 <div class="row feature-block align-items-center">
     <div class="col-md-6 feature-text">
-        <h3>Добавляй книги сразу после покупки</h3>
-        <p>Не откладывай на потом. Внеси книгу в свою библиотеку в один клик — указывай автора, жанр, статус и даже добавь обложку. Всё всегда под рукой!</p>
+        <h3>{% if user_language == 'en' %}Add books right after purchase{% else %}Добавляй книги сразу после покупки{% endif %}</h3>
+        <p>{% if user_language == 'en' %}Don't put it off. Add a book to your library in one click — specify author, genre, status, and even add a cover. Everything is always at hand!{% else %}Не откладывай на потом. Внеси книгу в свою библиотеку в один клик — указывай автора, жанр, статус и даже добавь обложку. Всё всегда под рукой!{% endif %}</p>
     </div>
     <div class="col-md-6 feature-image">
-        <img src="{% static 'catalog/фон_главная21.jpg' %}" alt="Добавление книг">
+        <img src="{% static 'catalog/фон_главная21.jpg' %}" alt="{% if user_language == 'en' %}Adding books{% else %}Добавление книг{% endif %}">
     </div>
 </div>
 
 <div class="row feature-block align-items-center">
     <div class="col-md-6 feature-image order-md-1 order-2">
-        <img src="{% static 'catalog/фон_главная23.jpg' %}" alt="Коллекции">
+        <img src="{% static 'catalog/фон_главная23.jpg' %}" alt="{% if user_language == 'en' %}Collections{% else %}Коллекции{% endif %}">
     </div>
     <div class="col-md-6 feature-text order-md-2 order-1">
-        <h3>Создавай коллекции для любых целей</h3>
-        <p>Группируй книги по настроению, жанру или собственным проектам. Одна книга может быть в нескольких коллекциях — так удобнее находить нужное!</p>
+        <h3>{% if user_language == 'en' %}Create collections for any purpose{% else %}Создавай коллекции для любых целей{% endif %}</h3>
+        <p>{% if user_language == 'en' %}Group books by mood, genre, or your own projects. One book can be in several collections — it's easier to find what you need!{% else %}Группируй книги по настроению, жанру или собственным проектам. Одна книга может быть в нескольких коллекциях — так удобнее находить нужное!{% endif %}</p>
     </div>
 </div>
 
 <div class="row feature-block align-items-center">
     <div class="col-md-6 feature-text">
-        <h3>Участвуй в книжном вызове</h3>
-        <p>Ставь цель на год, следи за прогрессом и получай удовольствие от выполнения. Книжный вызов поможет читать больше и системно!</p>
+        <h3>{% if user_language == 'en' %}Participate in the reading challenge{% else %}Участвуй в книжном вызове{% endif %}</h3>
+        <p>{% if user_language == 'en' %}Set a goal for the year, track progress and enjoy completing it. The reading challenge helps you read more and systematically!{% else %}Ставь цель на год, следи за прогрессом и получай удовольствие от выполнения. Книжный вызов поможет читать больше и системно!{% endif %}</p>
     </div>
     <div class="col-md-6 feature-image">
-        <img src="{% static 'catalog/фон_главная22.jpg' %}" alt="Книжный вызов">
+        <img src="{% static 'catalog/фон_главная22.jpg' %}" alt="{% if user_language == 'en' %}Reading challenge{% else %}Книжный вызов{% endif %}">
     </div>
 </div>
 
@@ -232,27 +232,27 @@
 <div class="row feature-block align-items-center" style="margin-bottom: 8rem; background-color: rgba(230, 215, 196, 0.7); border-radius: 30px; padding: 2.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
     <div class="col-md-6 feature-text">
         <div class="d-flex align-items-center mb-3">
-            <span class="badge px-3 py-2 rounded-pill" style="background-color: #797b3a !important; color: white !important; font-size: 1rem;">🎁 НОВИНКА</span>
+            <span class="badge px-3 py-2 rounded-pill" style="background-color: #797b3a !important; color: white !important; font-size: 1rem;">{% if user_language == 'en' %}NEW{% else %}НОВИНКА{% endif %}</span>
         </div>
-        <h3 style="font-family: 'Great Vibes', cursive; color: #3e2c1f; font-size: 3.2rem; margin-bottom: 1.5rem;">Участвуй в книжной лотерее!</h3>
+        <h3 style="font-family: 'Great Vibes', cursive; color: #3e2c1f; font-size: 3.2rem; margin-bottom: 1.5rem;">{% if user_language == 'en' %}Join the book lottery!{% else %}Участвуй в книжной лотерее!{% endif %}</h3>
         <p style="color: #4a3727; line-height: 1.6; font-size: 1.6rem; margin-bottom: 1.5rem;">
-            🎲 <strong>Книжная лотерея</strong> — случайная, но тщательно подобранная книга в подарочной упаковке. 
-            Отличный подарок себе или близким!
+            🎲 <strong>{% if user_language == 'en' %}Book lottery{% else %}Книжная лотерея{% endif %}</strong> — {% if user_language == 'en' %}a random but carefully selected book in gift wrapping.{% else %}случайная, но тщательно подобранная книга в подарочной упаковке.{% endif %}
+            {% if user_language == 'en' %}A great gift for yourself or your loved ones!{% else %}Отличный подарок себе или близким!{% endif %}
         </p>
         <p style="color: #4a3727; font-size: 1.4rem; margin-bottom: 1.5rem;">
-            🎁 Внутри вас ждут: <strong>стикеры, закладки, бумажные трекеры</strong> и другие милые сюрпризы. 
-            Индивидуальная аннотация-загадка раскроется только при прочтении.
+            🎁 {% if user_language == 'en' %}Inside you will find: stickers, bookmarks, paper trackers{% else %}Внутри вас ждут: стикеры, закладки, бумажные трекеры{% endif %} {% if user_language == 'en' %}and other cute surprises.{% else %}и другие милые сюрпризы.{% endif %}
+            {% if user_language == 'en' %}The individual riddle annotation will only be revealed when reading.{% else %}Индивидуальная аннотация-загадка раскроется только при прочтении.{% endif %}
         </p>
         <p style="color: #4a3727; font-size: 1.4rem; margin-bottom: 2rem;">
-            💬 <strong>Как заказать:</strong> расскажите о своих вкусах, покажите книжные полки, 
-            и я подберу идеальную книгу специально для вас!
+            💬 <strong>{% if user_language == 'en' %}How to order:{% else %}Как заказать:{% endif %}</strong> {% if user_language == 'en' %}tell us about your tastes, show your bookshelves,{% else %}расскажите о своих вкусах, покажите книжные полки,{% endif %}
+            {% if user_language == 'en' %}and I will select the perfect book for you!{% else %}и я подберу идеальную книгу специально для вас!{% endif %}
         </p>
         <div class="d-flex flex-wrap gap-3 mt-4">
             <a href="https://t.me/mizelarca" target="_blank" class="btn btn-lg px-4 py-2" style="background-color: #694633; color: white; border-radius: 50px; font-size: 1.4rem;">
-                <i class="bi bi-telegram me-2"></i> Telegram-канал
+                <i class="bi bi-telegram me-2"></i> Telegram
             </a>
             <a href="https://t.me/millanett" target="_blank" class="btn btn-lg px-4 py-2" style="background-color: #26a5e4; color: white; border-radius: 50px; font-size: 1.4rem;">
-                <i class="bi bi-send me-2"></i> Заказать в TG
+                <i class="bi bi-send me-2"></i> {% if user_language == 'en' %}Order on TG{% else %}Заказать в TG{% endif %}
             </a>
             <a href="https://www.avito.ru/moskva/knigi_i_zhurnaly/kniga_syurpriz_7424513324?utm_campaign=native&utm_medium=item_page_android&utm_source=soc_sharing_seller" target="_blank" class="btn btn-lg px-4 py-2" style="background-color: #ff5500; color: white; border-radius: 50px; font-size: 1.4rem;">
                 <i class="bi bi-bag me-2"></i> Avito
@@ -260,17 +260,17 @@
         </div>
     </div>
     <div class="col-md-6 feature-image text-center">
-        <img src="{% static 'catalog/книга_сюрприз.jpg' %}" alt="Книги-сюрприз" style="width: 100%; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-        <p class="mt-3 mb-0 text-muted small" style="font-size: 1.2rem;">📚 Книга + сюрприз внутри</p>
+        <img src="{% static 'catalog/книга_сюрприз.jpg' %}" alt="{% if user_language == 'en' %}Surprise book{% else %}Книги-сюрприз{% endif %}" style="width: 100%; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+        <p class="mt-3 mb-0 text-muted small" style="font-size: 1.2rem;">📚 {% if user_language == 'en' %}Book + surprise inside{% else %}Книга + сюрприз внутри{% endif %}</p>
     </div>
 </div>
 
 <!-- === Финальный призыв === -->
 <div class="cta-block">
-    <h2>Хочешь создать свою библиотеку мечты?</h2>
-    <p class="lead mb-4">Мы поможем тебе организовать чтение и не терять любимые книги</p>
+    <h2>{% if user_language == 'en' %}Do you want to create your dream library?{% else %}Хочешь создать свою библиотеку мечты?{% endif %}</h2>
+    <p class="lead mb-4">{% if user_language == 'en' %}We will help you organize your reading and not lose your favorite books{% else %}Мы поможем тебе организовать чтение и не терять любимые книги{% endif %}</p>
     {% if not user.is_authenticated %}
-        <a href="{% url 'register' %}" class="btn btn-success btn-lg">Присоединиться сейчас</a>
+        <a href="{% url 'register' %}" class="btn btn-success btn-lg">{% if user_language == 'en' %}Join now{% else %}Присоединиться сейчас{% endif %}</a>
     {% else %}
         <a href="{% url 'dashboard' %}" class="btn btn-success btn-lg" style="
     width: 100% !important;
@@ -285,7 +285,7 @@
     float: none !important;
     text-align: center !important;
     box-sizing: border-box !important;
-">Перейти в кабинет</a>
+">{% if user_language == 'en' %}Go to dashboard{% else %}Перейти в кабинет{% endif %}</a>
     {% endif %}
 </div>
 {% endblock %}

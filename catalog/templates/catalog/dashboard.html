@@ -8,7 +8,7 @@
 <!-- заголовок и блок профиля -->
 <div class="row mb-4 align-items-center dashboard-header">
     <div class="col-md-10">
-        <h1 class="display-4">Добро пожаловать, {{ user.username }}!</h1>
+        <h1 class="display-4">{% if user_language == 'en' %}Welcome, {{ user.username }}!{% else %}Добро пожаловать, {{ user.username }}!{% endif %}</h1>
     </div>
     <div class="col-md-2 d-flex justify-content-end">
         <div class="profile-card d-flex align-items-center p-2 rounded" style="background-color: #d1c4b3; width: 260px;">
@@ -23,7 +23,7 @@
             </div>
             <div class="d-flex flex-column align-items-center">
                 <h4 class="mb-0 fw-bold">{{ user.get_full_name|default:user.username }}</h4>
-                <a href="{% url 'profile' %}" class="btn btn-outline-dark mt-1 py-1 px-3" style="font-size: 0.9rem; border: none;">ред.</a>
+                <a href="{% url 'profile' %}" class="btn btn-outline-dark mt-1 py-1 px-3" style="font-size: 0.9rem; border: none;">{% if user_language == 'en' %}edit{% else %}ред.{% endif %}</a>
             </div>
         </div>
     </div>
@@ -35,20 +35,20 @@
         <div class="modal-content" style="background-color: #efe9dd; border-radius: 20px;">
             <div class="modal-header" style="border-bottom-color: #d1c4b3; position: relative;">
                 <h5 class="modal-title w-100 text-center" id="randomBookModalLabel" style="font-family: 'Great Vibes', cursive; color: #3e2c1f; font-size: 1.8rem;">
-                    🎲 Вам выпала книга!
+                    🎲 {% if user_language == 'en' %}You got a book!{% else %}Вам выпала книга!{% endif %}
                 </h5>
             </div>
             <div class="modal-body text-center" id="randomBookContent">
                 <div class="text-center py-4">
                     <div class="spinner-border text-success" role="status" style="color: #797b3a !important;">
-                        <span class="visually-hidden">Загрузка...</span>
+                        <span class="visually-hidden">{% if user_language == 'en' %}Loading...{% else %}Загрузка...{% endif %}</span>
                     </div>
-                    <p class="mt-3">Ищем книгу...</p>
+                    <p class="mt-3">{% if user_language == 'en' %}Looking for a book...{% else %}Ищем книгу...{% endif %}</p>
                 </div>
             </div>
             <div class="modal-footer" style="border-top-color: #d1c4b3; justify-content: center;">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: #d1c4b3; border-color: #d1c4b3; color: #3e2c1f; padding: 0.5rem 2rem;">Закрыть</button>
-                <a href="#" id="goToBookBtn" class="btn btn-primary" style="background-color: #797b3a; border-color: #797b3a; display: none;">Перейти к книге</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: #d1c4b3; border-color: #d1c4b3; color: #3e2c1f; padding: 0.5rem 2rem;">{% if user_language == 'en' %}Close{% else %}Закрыть{% endif %}</button>
+                <a href="#" id="goToBookBtn" class="btn btn-primary" style="background-color: #797b3a; border-color: #797b3a; display: none;">{% if user_language == 'en' %}Go to book{% else %}Перейти к книге{% endif %}</a>
             </div>
         </div>
     </div>
@@ -58,13 +58,13 @@
 <div class="row mb-5">
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-3 reading-header flex-wrap">
-            <h2 class="h3 mb-0" style="font-size: 2.5rem;">Сейчас читаю</h2>
+            <h2 class="h3 mb-0" style="font-size: 2.5rem;">{% if user_language == 'en' %}Currently reading{% else %}Сейчас читаю{% endif %}</h2>
             <div class="d-flex gap-3">
                 <a href="{% url 'book_list' %}" class="dashboard-btn" style="font-size: 1.2rem; padding: 0.75rem 2rem; border-radius: 50px; background-color: #797b3a; border-color: #797b3a; color: white; text-decoration: none; display: inline-block;">
-                    <i class="bi bi-arrow-right-circle"></i> Мои книги
+                    <i class="bi bi-arrow-right-circle"></i> {% if user_language == 'en' %}My books{% else %}Мои книги{% endif %}
                 </a>
                 <button type="button" class="btn" id="randomBookBtn" style="background-color: #797b3a; border-color: #797b3a; color: white; font-size: 1.2rem; padding: 0.75rem 2rem; border-radius: 50px;">
-                    <i class="bi bi-shuffle me-2"></i> Что почитать?
+                    <i class="bi bi-shuffle me-2"></i> {% if user_language == 'en' %}What to read?{% else %}Что почитать?{% endif %}
                 </button>
             </div>
         </div>
@@ -91,7 +91,7 @@
         </div>
     {% else %}
         <div class="col-12">
-            <p class="text-muted">Сейчас ты ничего не читаешь.</p>
+            <p class="text-muted">{% if user_language == 'en' %}You are not reading anything right now.{% else %}Сейчас ты ничего не читаешь.{% endif %}</p>
         </div>
     {% endif %}
 </div>
@@ -101,25 +101,25 @@
     <div class="col-md-6 mb-4 d-flex">
         <div class="card h-100 w-100 static-card">
             <div class="card-body d-flex flex-column">
-                <h3 class="text-center mb-3">Статистика</h3>
+                <h3 class="text-center mb-3">{% if user_language == 'en' %}Statistics{% else %}Статистика{% endif %}</h3>
 
                 {% if total > 0 %}
                     <div style="position: relative; width: 100%; max-width: 300px; margin: 0 auto;">
                         <canvas id="statsChart" width="300" height="300"></canvas>
                         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
                             <span style="font-size: 2.5rem; font-weight: bold; color: #3e2c1f;">{{ total }}</span><br>
-                            <span style="font-size: 0.9rem; color: #666;">всего книг</span>
+                            <span style="font-size: 0.9rem; color: #666;">{% if user_language == 'en' %}total books{% else %}всего книг{% endif %}</span>
                         </div>
                     </div>
 
                     <div class="d-flex flex-wrap justify-content-center gap-3 mt-3">
-                        <div><span style="display: inline-block; width: 20px; height: 20px; background-color: #3e2c1f; border-radius: 4px;"></span> Прочитано: {{ stats.read|default:0 }}</div>
-                        <div><span style="display: inline-block; width: 20px; height: 20px; background-color: #5a3e2c; border-radius: 4px;"></span> В процессе: {{ stats.reading|default:0 }}</div>
-                        <div><span style="display: inline-block; width: 20px; height: 20px; background-color: #7d5e44; border-radius: 4px;"></span> Непрочитано: {{ stats.unread|default:0 }}</div>
-                        <div><span style="display: inline-block; width: 20px; height: 20px; background-color: #a58d76; border-radius: 4px;"></span> Брошено: {{ stats.abandoned|default:0 }}</div>
+                        <div><span style="display: inline-block; width: 20px; height: 20px; background-color: #3e2c1f; border-radius: 4px;"></span> {% if user_language == 'en' %}Read{% else %}Прочитано{% endif %}: {{ stats.read|default:0 }}</div>
+                        <div><span style="display: inline-block; width: 20px; height: 20px; background-color: #5a3e2c; border-radius: 4px;"></span> {% if user_language == 'en' %}In progress{% else %}В процессе{% endif %}: {{ stats.reading|default:0 }}</div>
+                        <div><span style="display: inline-block; width: 20px; height: 20px; background-color: #7d5e44; border-radius: 4px;"></span> {% if user_language == 'en' %}Unread{% else %}Непрочитано{% endif %}: {{ stats.unread|default:0 }}</div>
+                        <div><span style="display: inline-block; width: 20px; height: 20px; background-color: #a58d76; border-radius: 4px;"></span> {% if user_language == 'en' %}Abandoned{% else %}Брошено{% endif %}: {{ stats.abandoned|default:0 }}</div>
                     </div>
                 {% else %}
-                    <p class="text-center text-muted">У вас пока нет книг</p>
+                    <p class="text-center text-muted">{% if user_language == 'en' %}You have no books yet{% else %}У вас пока нет книг{% endif %}</p>
                 {% endif %}
             </div>
         </div>
@@ -128,10 +128,10 @@
     <div class="col-md-6 mb-4 d-flex">
         <div class="card h-100 w-100 static-card">
             <div class="card-body d-flex flex-column">
-                <h3 class="text-center mb-3">Книжный вызов {{ challenge.year }}</h3>
+                <h3 class="text-center mb-3">{% if user_language == 'en' %}Reading challenge {{ challenge.year }}{% else %}Книжный вызов {{ challenge.year }}{% endif %}</h3>
                 <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1">
                     <div class="mb-3 text-center">
-                        <span class="h5">Прогресс:</span>
+                        <span class="h5">{% if user_language == 'en' %}Progress:{% else %}Прогресс:{% endif %}</span>
                         <span class="h5 ms-2">{{ books_read_this_year }} / {{ challenge.goal }}</span>
                     </div>
                     <div class="progress w-100 mb-4" style="height: 25px; background-color: #d1c4b3; border-radius: 30px;">
@@ -144,11 +144,11 @@
                     <form method="post" class="row g-2 align-items-end w-100">
                         {% csrf_token %}
                         <div class="col-8">
-                            <label for="{{ form.goal.id_for_label }}" class="form-label">Цель на год</label>
+                            <label for="{{ form.goal.id_for_label }}" class="form-label">{% if user_language == 'en' %}Goal for the year{% else %}Цель на год{% endif %}</label>
                             {{ form.goal }}
                         </div>
                         <div class="col-4">
-                            <button type="submit" class="btn btn-primary w-100">Обновить</button>
+                            <button type="submit" class="btn btn-primary w-100">{% if user_language == 'en' %}Update{% else %}Обновить{% endif %}</button>
                         </div>
                     </form>
                 </div>
@@ -157,12 +157,40 @@
     </div>
 </div>
 
+<!-- Блок со случайной цитатой -->
+{% if random_quote %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card static-card">
+            <div class="card-body">
+                <h3 class="text-center mb-3" style="font-family: 'Great Vibes', cursive; color: #3e2c1f;">
+                    {% if user_language == 'en' %}Random quote{% else %}Случайная цитата{% endif %}
+                </h3>
+                <div class="text-center">
+                    <blockquote class="blockquote">
+                        <p class="mb-2" style="font-style: italic; font-size: 1.2rem;">
+                            “{{ random_quote.quote }}”
+                        </p>
+                        <footer class="blockquote-footer mt-2">
+                            <a href="{% url 'book_detail' random_quote.book_id %}">
+                                {{ random_quote.book_title }}
+                            </a>
+                        </footer>
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
 <!-- Блок с топ-авторами, топ-жанрами и топ-книгами -->
 <div class="row mt-4">
     <div class="col-md-4 mb-4">
         <div class="card h-100 static-card">
             <div class="card-body">
-                <h3 class="text-center mb-3" style="font-family: 'Great Vibes', cursive; color: #3e2c1f;">Любимые авторы</h3>
+                <h3 class="text-center mb-3" style="font-family: 'Great Vibes', cursive; color: #3e2c1f;">{% if user_language == 'en' %}Favorite authors{% else %}Любимые авторы{% endif %}</h3>
                 {% if top_authors %}
                     <div class="list-group list-group-flush">
                         {% for author in top_authors %}
@@ -178,16 +206,16 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    <p class="text-center text-muted">Добавьте книги, чтобы увидеть любимых авторов</p>
+                    <p class="text-center text-muted">{% if user_language == 'en' %}Add books to see your favorite authors{% else %}Добавьте книги, чтобы увидеть любимых авторов{% endif %}</p>
                 {% endif %}
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-4 mb-4">
         <div class="card h-100 static-card">
             <div class="card-body">
-                <h3 class="text-center mb-3" style="font-family: 'Great Vibes', cursive; color: #3e2c1f;">Любимые жанры</h3>
+                <h3 class="text-center mb-3" style="font-family: 'Great Vibes', cursive; color: #3e2c1f;">{% if user_language == 'en' %}Favorite genres{% else %}Любимые жанры{% endif %}</h3>
                 {% if top_genres %}
                     <div class="list-group list-group-flush">
                         {% for genre in top_genres %}
@@ -203,16 +231,16 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    <p class="text-center text-muted">Добавьте книги, чтобы увидеть любимые жанры</p>
+                    <p class="text-center text-muted">{% if user_language == 'en' %}Add books to see your favorite genres{% else %}Добавьте книги, чтобы увидеть любимые жанры{% endif %}</p>
                 {% endif %}
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-4 mb-4">
         <div class="card h-100 static-card">
             <div class="card-body">
-                <h3 class="text-center mb-3" style="font-family: 'Great Vibes', cursive; color: #3e2c1f;">Лучшие книги</h3>
+                <h3 class="text-center mb-3" style="font-family: 'Great Vibes', cursive; color: #3e2c1f;">{% if user_language == 'en' %}Top books{% else %}Лучшие книги{% endif %}</h3>
                 {% if top_books %}
                     <div class="list-group list-group-flush">
                         {% for book in top_books %}
@@ -222,7 +250,7 @@
                                         <i class="bi bi-star-fill me-2" style="color: #ffc107;"></i>
                                         {{ book.title|truncatechars:30 }}
                                     </span>
-                                    <div class="small text-muted">{{ book.author.name|default:"Автор не указан" }}</div>
+                                    <div class="small text-muted">{{ book.author.name|default:"{% if user_language == 'en' %}Author not specified{% else %}Автор не указан{% endif %}" }}</div>
                                 </div>
                                 <span class="badge rounded-pill" style="background-color: #ffc107; color: #3e2c1f;">
                                     ★ {{ book.rating }}/5
@@ -231,7 +259,7 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    <p class="text-center text-muted">Оцените книги, чтобы увидеть лучшие</p>
+                    <p class="text-center text-muted">{% if user_language == 'en' %}Rate books to see the best{% else %}Оцените книги, чтобы увидеть лучшие{% endif %}</p>
                 {% endif %}
             </div>
         </div>
@@ -243,13 +271,13 @@
     <div class="col-12">
         <div class="card static-card">
             <div class="card-body">
-                <h3 class="text-center mb-3" style="font-family: 'Great Vibes', cursive; color: #3e2c1f; font-size: 1.8rem;">Прочитано книг по месяцам ({{ current_year }})</h3>
+                <h3 class="text-center mb-3" style="font-family: 'Great Vibes', cursive; color: #3e2c1f; font-size: 1.8rem;">{% if user_language == 'en' %}Books read by month ({{ current_year }}){% else %}Прочитано книг по месяцам ({{ current_year }}){% endif %}</h3>
                 {% if books_read_this_year > 0 %}
                     <div style="max-width: 100%; overflow-x: auto;">
                         <canvas id="monthlyChart" width="600" height="250" style="max-width: 100%; height: auto; max-height: 250px;"></canvas>
                     </div>
                 {% else %}
-                    <p class="text-center text-muted">В этом году вы ещё не прочитали ни одной книги</p>
+                    <p class="text-center text-muted">{% if user_language == 'en' %}You haven't read any books this year yet{% else %}В этом году вы ещё не прочитали ни одной книги{% endif %}</p>
                 {% endif %}
             </div>
         </div>
@@ -269,9 +297,9 @@ document.addEventListener('DOMContentLoaded', function() {
             contentDiv.innerHTML = `
                 <div class="text-center py-4">
                     <div class="spinner-border text-success" role="status" style="color: #797b3a !important;">
-                        <span class="visually-hidden">Загрузка...</span>
+                        <span class="visually-hidden">${'{% if user_language == 'en' %}Loading...{% else %}Загрузка...{% endif %}'}</span>
                     </div>
-                    <p class="mt-3">Ищем книгу...</p>
+                    <p class="mt-3">${'{% if user_language == 'en' %}Looking for a book...{% else %}Ищем книгу...{% endif %}'}</p>
                 </div>
             `;
 
@@ -312,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     contentDiv.innerHTML = `
                         <div class="text-center py-4">
                             <i class="bi bi-exclamation-triangle" style="font-size: 3rem; color: #dc3545;"></i>
-                            <p class="mt-3">Ошибка при загрузке книги. Попробуйте позже.</p>
+                            <p class="mt-3">${'{% if user_language == 'en' %}Error loading the book. Please try again later.{% else %}Ошибка при загрузке книги. Попробуйте позже.{% endif %}'}</p>
                         </div>
                     `;
                     document.getElementById('goToBookBtn').style.display = 'none';
@@ -338,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             const colors = ['#3e2c1f', '#5a3e2c', '#7d5e44', '#a58d76'];
-            const labels = ['Прочитано', 'В процессе', 'Непрочитано', 'Брошено'];
+            const labels = ['{% if user_language == 'en' %}Read{% else %}Прочитано{% endif %}', '{% if user_language == 'en' %}In progress{% else %}В процессе{% endif %}', '{% if user_language == 'en' %}Unread{% else %}Непрочитано{% endif %}', '{% if user_language == 'en' %}Abandoned{% else %}Брошено{% endif %}'];
 
             const data = [];
             const backgroundColors = [];
@@ -397,19 +425,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const monthlyCanvas = document.getElementById('monthlyChart');
         console.log('Canvas элемент:', monthlyCanvas);
         console.log('books_read_this_year:', {{ books_read_this_year }});
-        
+
         if (monthlyCanvas) {
             try {
                 const monthlyData = {{ monthly_data|safe }};
                 const months = {{ months|safe }};
-                
+
                 console.log('Monthly data:', monthlyData);
                 console.log('Months:', months);
                 console.log('Сумма данных:', monthlyData.reduce((a,b) => a + b, 0));
-                
+
                 const hasData = monthlyData.some(value => value > 0);
                 console.log('Есть данные > 0:', hasData);
-                
+
                 if (hasData) {
                     console.log('Создаем график...');
                     new Chart(monthlyCanvas, {
@@ -417,7 +445,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         data: {
                             labels: months,
                             datasets: [{
-                                label: 'Прочитано книг',
+                                label: '{% if user_language == 'en' %}Books read{% else %}Прочитано книг{% endif %}',
                                 data: monthlyData,
                                 backgroundColor: '#797b3a',
                                 borderColor: '#5a5e2c',
@@ -438,11 +466,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                 tooltip: {
                                     callbacks: {
                                         label: function(context) {
-                                            const value = context.raw;
-                                            let word = 'книг';
-                                            if (value === 1) word = 'книга';
-                                            else if (value >= 2 && value <= 4) word = 'книги';
-                                            return `${value} ${word}`;
+                                            var value = context.raw;
+                                            var word = '{% if user_language == 'en' %}books{% else %}книг{% endif %}';
+                                            if (value === 1) word = '{% if user_language == 'en' %}book{% else %}книга{% endif %}';
+                                            else if (value >= 2 && value <= 4) word = '{% if user_language == 'en' %}books{% else %}книги{% endif %}';
+                                            return value + ' ' + word;
                                         }
                                     }
                                 }
@@ -464,20 +492,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     console.log('Нет данных для отображения');
                     monthlyCanvas.style.display = 'none';
-                    const parent = monthlyCanvas.parentElement;
+                    var parent = monthlyCanvas.parentElement;
                     if (parent && !parent.querySelector('.no-data-message')) {
-                        const msg = document.createElement('p');
+                        var msg = document.createElement('p');
                         msg.className = 'text-center text-muted';
-                        msg.innerText = 'Нет прочитанных книг с указанной датой окончания';
+                        msg.innerText = '{% if user_language == 'en' %}No read books with a specified finish date{% else %}Нет прочитанных книг с указанной датой окончания{% endif %}';
                         parent.appendChild(msg);
                     }
                 }
             } catch (error) {
                 console.error('Ошибка при создании графика:', error);
-                const parent = monthlyCanvas.parentElement;
-                const errorMsg = document.createElement('p');
+                var parent = monthlyCanvas.parentElement;
+                var errorMsg = document.createElement('p');
                 errorMsg.className = 'text-center text-danger';
-                errorMsg.innerText = 'Ошибка загрузки графика: ' + error.message;
+                errorMsg.innerText = '{% if user_language == 'en' %}Error loading the graph: {% else %}Ошибка загрузки графика: {% endif %}' + error.message;
                 parent.appendChild(errorMsg);
             }
         } else {

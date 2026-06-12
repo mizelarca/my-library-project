@@ -1,28 +1,28 @@
 {% extends 'catalog/base.html' %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}{% if user_language == 'en' %}{% if title == 'Новая коллекция' %}New collection{% elif title == 'Редактировать коллекцию' %}Edit collection{% else %}{{ title }}{% endif %}{% else %}{{ title }}{% endif %}{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-6">
-        <h1 class="mb-4">{{ title }}</h1>
+        <h1 class="mb-4">{% if user_language == 'en' %}{% if title == 'Новая коллекция' %}New collection{% elif title == 'Редактировать коллекцию' %}Edit collection{% else %}{{ title }}{% endif %}{% else %}{{ title }}{% endif %}</h1>
         <div class="card static-card" style="background-color: #e6d7c4;">
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
 
                     <div class="mb-3">
-                        <label for="{{ form.name.id_for_label }}" class="form-label">Название</label>
+                        <label for="{{ form.name.id_for_label }}" class="form-label">{% if user_language == 'en' %}Name{% else %}Название{% endif %}</label>
                         {{ form.name }}
                     </div>
 
                     <div class="mb-3">
-                        <label for="{{ form.description.id_for_label }}" class="form-label">Описание (необязательно)</label>
+                        <label for="{{ form.description.id_for_label }}" class="form-label">{% if user_language == 'en' %}Description (optional){% else %}Описание (необязательно){% endif %}</label>
                         {{ form.description }}
                     </div>
 
-                    <button type="submit" class="btn btn-success">Сохранить</button>
-                    <a href="{% url 'collection_list' %}" class="btn btn-secondary">Отмена</a>
+                    <button type="submit" class="btn btn-success">{% if user_language == 'en' %}Save{% else %}Сохранить{% endif %}</button>
+                    <a href="{% url 'collection_list' %}" class="btn btn-secondary">{% if user_language == 'en' %}Cancel{% else %}Отмена{% endif %}</a>
                 </form>
             </div>
         </div>

@@ -61,9 +61,10 @@ def dashboard(request):
         defaults={'goal': 10}
     )
 
+    # ИСПРАВЛЕНО: используем date_finished__year вместо updated_at__year
     books_read_this_year = books.filter(
         status__name='read',
-        updated_at__year=current_year
+        date_finished__year=current_year
     ).count()
 
     if challenge.goal > 0:
@@ -80,6 +81,22 @@ def dashboard(request):
     ).filter(genre__name__isnull=False).order_by('-count')[:3]
 
     top_books = books.filter(rating__gt=0).order_by('-rating', '-updated_at')[:3]
+
+        # Случайная цитата из всех цитат пользователя
+    import random
+    random_quote = None
+    all_quotes = []
+    for book in books:
+        if book.quotes:
+            for line in book.quotes.splitlines():
+                if line.strip():
+                    all_quotes.append({
+                        'quote': line.strip(),
+                        'book_title': book.title,
+                        'book_id': book.id
+                    })
+    if all_quotes:
+        random_quote = random.choice(all_quotes)
 
     monthly_stats = books.filter(
         status__name='read',
@@ -120,6 +137,7 @@ def dashboard(request):
         'months': months,
         'monthly_data': monthly_data,
         'current_year': current_year,
+        'random_quote': random_quote,   # ← ЭТО НОВАЯ СТРОКА
     }
     return render(request, 'catalog/dashboard.html', context)
 
@@ -333,18 +351,25 @@ def profile(request):
         user_form = UserForm(request.POST, instance=request.user)
         profile_form = ProfileForm(request.POST, request.FILES, instance=profile_obj)
 
+        # Обработка аватара
+        if 'avatar' in request.FILES:
+            # Удаляем старый аватар
+            if profile_obj.avatar and os.path.isfile(profile_obj.avatar.path):
+                os.remove(profile_obj.avatar.path)
+            # Сохраняем новый файл
+            profile_obj.avatar = request.FILES['avatar']
+            profile_obj.save()
+            messages.success(request, 'Аватар обновлён!')
+            return redirect('profile')
+
+        # Остальные поля профиля
         if user_form.is_valid() and profile_form.is_valid():
-            # Если загружен новый аватар, удаляем старый файл
-            if 'avatar' in request.FILES:
-                old_avatar = profile_obj.avatar
-                if old_avatar and os.path.isfile(old_avatar.path):
-                    os.remove(old_avatar.path)
             profile_form.save()
             user_form.save()
             messages.success(request, 'Профиль успешно обновлён!')
             return redirect('profile')
         else:
-            messages.error(request, 'Ошибка при обновлении профиля. Проверьте поля.')
+            messages.error(request, 'Ошибка при обновлении профиля. Проверьте форму.')
     else:
         user_form = UserForm(instance=request.user)
         profile_form = ProfileForm(instance=profile_obj)
