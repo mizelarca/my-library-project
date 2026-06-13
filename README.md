@@ -54,28 +54,3 @@
 | Экспорт/импорт | django-import-export, openpyxl |
 | Сервер | Ubuntu 22.04, Gunicorn, Nginx |
 
-## Установка и запуск
-
-```bash
-# Клонировать репозиторий
-git clone https://github.com/mizelarca/my-library-project.git
-cd my-library-project
-
-# Создать виртуальное окружение
-python3 -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Установить зависимости
-pip install -r requirements.txt
-
-# Настроить базу данных MySQL
-# Создать базу mylibrary_db, пользователя mylib, пароль в settings.py
-
-# Выполнить миграции
-python manage.py migrate
-
-# Создать суперпользователя
-python manage.py createsuperuser
-
-# Запустить сервер
-python manage.py runserver
