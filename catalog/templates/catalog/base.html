@@ -390,6 +390,18 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{% url 'timer_page' %}">
+                                <i class="bi bi-stopwatch me-1"></i>
+                                {% if user_language == 'en' %}Timer{% else %}Таймер{% endif %}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+    <a class="nav-link" href="{% url 'heatmap' %}">
+        <i class="bi bi-thermometer-half me-1"></i>
+        {% if user_language == 'en' %}Heatmap{% else %}Тепловая карта{% endif %}
+    </a>
+</li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{% url 'profile' %}">
                                 <i class="bi bi-person-gear me-1"></i>
                                 {% if user_language == 'en' %}Profile{% else %}Профиль{% endif %}

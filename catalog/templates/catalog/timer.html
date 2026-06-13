@@ -1,0 +1,477 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+{% load book_filters %}
+
+{% block title %}{% if user_language == 'en' %}Reading Timer{% else %}Таймер чтения{% endif %}{% endblock %}
+
+{% block content %}
+
+<style>
+    /* Светлая тема */
+    .timer-card {
+        background-color: #e6d7c4 !important;
+        background-image: none !important;
+        border-radius: 16px;
+        transition: all 0.3s ease;
+    }
+    .timer-display {
+        font-family: monospace;
+        font-size: 5rem;
+        font-weight: bold;
+        letter-spacing: 5px;
+        color: #3e2c1f;
+    }
+    .timer-label {
+        color: #6c5a47;
+    }
+    .btn-timer-primary {
+        background-color: #797b3a;
+        color: white;
+        border: none;
+        border-radius: 50px;
+    }
+    .btn-timer-primary:hover {
+        background-color: #5e5e2c;
+        color: white;
+    }
+    .btn-timer-secondary {
+        background-color: #d1c4b3;
+        color: #3e2c1f;
+        border: none;
+        border-radius: 50px;
+    }
+    .btn-timer-secondary:hover {
+        background-color: #c0b09a;
+    }
+    .btn-timer-danger {
+        background-color: #a58d76;
+        color: white;
+        border: none;
+        border-radius: 50px;
+    }
+    .btn-timer-danger:hover {
+        background-color: #8a735c;
+    }
+    .btn-delete-session {
+        background-color: #a58d76;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 2px 10px;
+        font-size: 0.7rem;
+    }
+    .btn-delete-session:hover {
+        background-color: #8a735c;
+    }
+    .btn-reset-all {
+        background-color: #a58d76;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 5px 12px;
+        font-size: 0.8rem;
+    }
+    .btn-reset-all:hover {
+        background-color: #8a735c;
+    }
+    .session-item {
+        border-bottom: 1px solid #d1c4b3;
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+    }
+    .total-time {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #3e2c1f;
+    }
+    
+    /* Тёмная тема */
+    body.dark-theme .timer-card {
+        background-color: #3a2e26 !important;
+        background-image: none !important;
+    }
+    body.dark-theme .timer-display {
+        color: #e6d7c4 !important;
+    }
+    body.dark-theme .timer-label {
+        color: #b0a088 !important;
+    }
+    body.dark-theme .session-item {
+        border-bottom-color: #5a4a3a !important;
+    }
+    body.dark-theme .total-time {
+        color: #e6d7c4 !important;
+    }
+    body.dark-theme .btn-timer-secondary {
+        background-color: #5a4a3a !important;
+        color: #e6d7c4 !important;
+    }
+    body.dark-theme .btn-timer-secondary:hover {
+        background-color: #6a5a4a !important;
+    }
+    body.dark-theme .btn-delete-session {
+        background-color: #5a4a3a !important;
+        color: #e6d7c4 !important;
+    }
+    body.dark-theme .btn-delete-session:hover {
+        background-color: #6a5a4a !important;
+    }
+    body.dark-theme .btn-reset-all {
+        background-color: #5a4a3a !important;
+        color: #e6d7c4 !important;
+    }
+    body.dark-theme .btn-reset-all:hover {
+        background-color: #6a5a4a !important;
+    }
+    body.dark-theme .form-select,
+    body.dark-theme .form-control {
+        background-color: #3a2e26 !important;
+        border-color: #5a4a3a !important;
+        color: #e6d7c4 !important;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <!-- Выбор книги -->
+            <div class="mb-4">
+                <label class="form-label fw-bold">{% if user_language == 'en' %}Select a book{% else %}Выберите книгу{% endif %}</label>
+                <select id="bookSelect" class="form-select" style="background-color: var(--bs-body-bg); border-color: var(--bs-border-color);">
+                    <option value="">-- {% if user_language == 'en' %}Select a book{% else %}Выберите книгу{% endif %} --</option>
+                    {% for b in books %}
+                        <option value="{{ b.id }}" {% if book and book.id == b.id %}selected{% endif %}>{{ b.title }} — {{ b.author.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Таймер текущей сессии -->
+            <div class="timer-card p-4 text-center mb-3">
+                <h5 class="mb-3 timer-label">{% if user_language == 'en' %}Current session{% else %}Текущая сессия{% endif %}</h5>
+                <div class="mb-2">
+                    <div id="timerDisplay" class="timer-display">
+                        00:00:00
+                    </div>
+                </div>                
+                <div class="d-flex gap-3 justify-content-center mb-3">
+                    <button id="startBtn" class="btn px-4 py-2 btn-timer-primary" style="font-size: 1.2rem;">
+                        {% if user_language == 'en' %}Start{% else %}Старт{% endif %}
+                    </button>
+                    <button id="pauseBtn" class="btn px-4 py-2 btn-timer-secondary" style="font-size: 1.2rem;" disabled>
+                        {% if user_language == 'en' %}Pause{% else %}Пауза{% endif %}
+                    </button>
+                    <button id="stopBtn" class="btn px-4 py-2 btn-timer-danger" style="font-size: 1.2rem;" disabled>
+                        {% if user_language == 'en' %}Stop{% else %}Стоп{% endif %}
+                    </button>
+                </div>
+                
+                <div id="activeInfo" class="small timer-label" style="display: none;">
+                    {% if user_language == 'en' %}Active session{% else %}Активная сессия{% endif %}
+                </div>
+            </div>
+            
+            <!-- Общее время чтения + кнопка сброса -->
+            <div class="timer-card p-3 text-center mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-start">
+                        <h6 class="mb-1 timer-label">{% if user_language == 'en' %}Total reading time{% else %}Всего прочитано{% endif %}</h6>
+                        <div id="totalTimeDisplay" class="total-time">
+                            0ч 0м 0с
+                        </div>
+                    </div>
+                    <button id="resetTimeBtn" class="btn btn-reset-all">
+                        {% if user_language == 'en' %}Reset all{% else %}Сбросить всё{% endif %}
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Ручное добавление времени -->
+            <div class="timer-card p-3 mb-3">
+                <h6 class="mb-3 timer-label">{% if user_language == 'en' %}Add time manually{% else %}Добавить время вручную{% endif %}</h6>
+                <div class="row g-2 align-items-end">
+                    <div class="col-5">
+                        <input type="number" id="manualMinutes" class="form-control" placeholder="{% if user_language == 'en' %}Minutes{% else %}Минуты{% endif %}" min="0" value="0" style="background-color: var(--bs-body-bg); border-color: var(--bs-border-color);">
+                    </div>
+                    <div class="col-5">
+                        <input type="number" id="manualSeconds" class="form-control" placeholder="{% if user_language == 'en' %}Seconds{% else %}Секунды{% endif %}" min="0" max="59" value="0" style="background-color: var(--bs-body-bg); border-color: var(--bs-border-color);">
+                    </div>
+                    <div class="col-2">
+                        <button id="manualAddBtn" class="btn w-100 btn-timer-primary" style="border-radius: 50px;">
+                            {% if user_language == 'en' %}Add{% else %}Добавить{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- История сессий с возможностью удаления -->
+            <div class="timer-card p-3">
+                <h6 class="mb-3 timer-label">{% if user_language == 'en' %}Recent sessions (last month){% else %}Последние сессии (за месяц){% endif %}</h6>
+                <div id="sessionsList" style="max-height: 250px; overflow-y: auto;">
+                    <div class="text-muted text-center py-3">{% if user_language == 'en' %}Select a book{% else %}Выберите книгу{% endif %}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let activeSessionId = null;
+let timerInterval = null;
+let currentSessionSeconds = 0;
+let selectedBookId = null;
+let userLanguage = '{{ user_language|default:"ru" }}';
+
+function formatTime(seconds) {
+    let h = Math.floor(seconds / 3600);
+    let m = Math.floor((seconds % 3600) / 60);
+    let s = seconds % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function formatTimeReadable(seconds) {
+    let h = Math.floor(seconds / 3600);
+    let m = Math.floor((seconds % 3600) / 60);
+    let s = seconds % 60;
+    if (userLanguage === 'en') {
+        if (h > 0) return `${h}h ${m}m ${s}s`;
+        if (m > 0) return `${m}m ${s}s`;
+        return `${s}s`;
+    } else {
+        if (h > 0) return `${h}ч ${m}м ${s}с`;
+        if (m > 0) return `${m}м ${s}с`;
+        return `${s}с`;
+    }
+}
+
+function deleteSession(sessionId) {
+    let msg = (userLanguage === 'en') ? 'Delete this session? The time will be deducted from total.' : 'Удалить эту сессию? Время будет вычтено из общего.';
+    if (!confirm(msg)) return;
+    
+    fetch(`/api/timer/delete-session/${sessionId}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            loadStats(selectedBookId);
+        } else {
+            alert(data.error);
+        }
+    });
+}
+
+function resetAllTime() {
+    if (!selectedBookId) {
+        let msg = (userLanguage === 'en') ? 'Select a book first' : 'Сначала выберите книгу';
+        alert(msg);
+        return;
+    }
+    let msg = (userLanguage === 'en') ? 'WARNING! This will delete ALL reading time for this book and all sessions. Cannot be undone. Continue?' : 'ВНИМАНИЕ! Это удалит ВСЁ время чтения этой книги и все сессии. Отменить нельзя. Продолжить?';
+    if (!confirm(msg)) return;
+    
+    fetch(`/api/timer/reset/${selectedBookId}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            loadStats(selectedBookId);
+        } else {
+            alert(data.error);
+        }
+    });
+}
+
+function loadStats(bookId) {
+    if (!bookId) return;
+    
+    fetch(`/api/timer/stats/${bookId}/`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('totalTimeDisplay').innerHTML = formatTimeReadable(data.total_seconds);
+                
+                const sessionsList = document.getElementById('sessionsList');
+                if (data.sessions.length === 0) {
+                    let noSessionsMsg = (userLanguage === 'en') ? 'No sessions in the last month' : 'Нет сессий за последний месяц';
+                    sessionsList.innerHTML = `<div class="text-muted text-center py-3">${noSessionsMsg}</div>`;
+                } else {
+                    sessionsList.innerHTML = data.sessions.map(s => `
+                        <div class="d-flex justify-content-between align-items-center session-item">
+                            <div class="small">
+                                <div>${s.start}</div>
+                                <div><strong>${s.duration_str}</strong></div>
+                            </div>
+                            <button class="btn btn-delete-session" onclick="deleteSession(${s.id})">
+                                ${userLanguage === 'en' ? 'Delete' : 'Удалить'}
+                            </button>
+                        </div>
+                    `).join('');
+                }
+                
+                if (data.active_session) {
+                    activeSessionId = data.active_session.id;
+                    currentSessionSeconds = data.active_session.elapsed;
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('pauseBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = false;
+                    document.getElementById('activeInfo').style.display = 'block';
+                    document.getElementById('timerDisplay').innerText = formatTime(currentSessionSeconds);
+                    
+                    if (timerInterval) clearInterval(timerInterval);
+                    timerInterval = setInterval(() => {
+                        currentSessionSeconds++;
+                        document.getElementById('timerDisplay').innerText = formatTime(currentSessionSeconds);
+                    }, 1000);
+                } else {
+                    activeSessionId = null;
+                    currentSessionSeconds = 0;
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('pauseBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = true;
+                    document.getElementById('activeInfo').style.display = 'none';
+                    document.getElementById('timerDisplay').innerText = '00:00:00';
+                    if (timerInterval) {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                    }
+                }
+            }
+        });
+}
+
+document.getElementById('bookSelect').addEventListener('change', function() {
+    selectedBookId = this.value;
+    if (selectedBookId) {
+        loadStats(selectedBookId);
+    } else {
+        document.getElementById('timerDisplay').innerText = '00:00:00';
+        let defaultTime = (userLanguage === 'en') ? '0h 0m 0s' : '0ч 0м 0с';
+        document.getElementById('totalTimeDisplay').innerHTML = defaultTime;
+        let selectMsg = (userLanguage === 'en') ? 'Select a book' : 'Выберите книгу';
+        document.getElementById('sessionsList').innerHTML = `<div class="text-muted text-center py-3">${selectMsg}</div>`;
+    }
+});
+
+document.getElementById('startBtn').addEventListener('click', function() {
+    if (!selectedBookId) {
+        let msg = (userLanguage === 'en') ? 'Select a book first' : 'Сначала выберите книгу';
+        alert(msg);
+        return;
+    }
+    fetch(`/api/timer/start/${selectedBookId}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            loadStats(selectedBookId);
+        } else {
+            alert(data.error);
+        }
+    });
+});
+
+document.getElementById('pauseBtn').addEventListener('click', function() {
+    if (!activeSessionId) return;
+    fetch(`/api/timer/pause/${activeSessionId}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            loadStats(selectedBookId);
+        } else {
+            alert(data.error);
+        }
+    });
+});
+
+document.getElementById('stopBtn').addEventListener('click', function() {
+    if (!activeSessionId) return;
+    fetch(`/api/timer/stop/${activeSessionId}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            loadStats(selectedBookId);
+        } else {
+            alert(data.error);
+        }
+    });
+});
+
+document.getElementById('manualAddBtn').addEventListener('click', function() {
+    if (!selectedBookId) {
+        let msg = (userLanguage === 'en') ? 'Select a book first' : 'Сначала выберите книгу';
+        alert(msg);
+        return;
+    }
+    let minutes = parseInt(document.getElementById('manualMinutes').value) || 0;
+    let seconds = parseInt(document.getElementById('manualSeconds').value) || 0;
+    
+    if (minutes === 0 && seconds === 0) {
+        let msg = (userLanguage === 'en') ? 'Enter time greater than 0' : 'Введите время больше 0';
+        alert(msg);
+        return;
+    }
+    
+    fetch(`/api/timer/manual/${selectedBookId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ minutes: minutes, seconds: seconds })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('manualMinutes').value = 0;
+            document.getElementById('manualSeconds').value = 0;
+            loadStats(selectedBookId);
+        } else {
+            alert(data.error);
+        }
+    });
+});
+
+document.getElementById('resetTimeBtn').addEventListener('click', resetAllTime);
+
+window.addEventListener('beforeunload', function(e) {
+    if (activeSessionId) {
+        e.preventDefault();
+        let msg = (userLanguage === 'en') ? 'You have an active reading session. Are you sure you want to leave?' : 'У вас есть активная сессия чтения. Вы уверены, что хотите покинуть страницу?';
+        e.returnValue = msg;
+        return msg;
+    }
+});
+
+function getCookie(name) {
+    let value = null;
+    if (document.cookie && document.cookie !== '') {
+        let cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                value = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return value;
+}
+
+{% if book %}
+selectedBookId = {{ book.id }};
+document.getElementById('bookSelect').value = {{ book.id }};
+loadStats({{ book.id }});
+{% endif %}
+</script>
+{% endblock %}

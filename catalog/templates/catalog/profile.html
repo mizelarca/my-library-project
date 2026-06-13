@@ -86,11 +86,12 @@
                 </select>
             </div>
 
-            <!-- Центрированные кнопки "Сменить пароль" и "Написать в поддержку" (без обводки) -->
-            <div class="d-flex gap-3 justify-content-center" style="margin: 1rem 0 0.5rem 0;">
-                <a href="{% url 'password_change' %}" class="btn" style="background-color: #d1c4b3; color: #3e2c1f; border: none; padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none;">{% if user_language == 'en' %}Change password{% else %}Сменить пароль{% endif %}</a>
-                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=personallib2026@gmail.com" target="_blank" class="btn" style="background-color: #d1c4b3; color: #3e2c1f; border: none; padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none;">{% if user_language == 'en' %}Contact support{% else %}Написать в поддержку{% endif %}</a>
-            </div>
+                 <!-- Центрированные кнопки -->
+<div class="d-flex gap-3 justify-content-center flex-wrap" style="margin: 1rem 0 0.5rem 0;">
+    <a href="{% url 'password_change' %}" class="btn" style="background-color: #d1c4b3; color: #3e2c1f; border: none; padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none;">{% if user_language == 'en' %}Change password{% else %}Сменить пароль{% endif %}</a>
+    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=personallib2026@gmail.com" target="_blank" class="btn" style="background-color: #d1c4b3; color: #3e2c1f; border: none; padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none;">{% if user_language == 'en' %}Contact support{% else %}Написать в поддержку{% endif %}</a>
+    <a href="{% url 'help' %}" class="btn" style="background-color: #d1c4b3; color: #3e2c1f; border: none; padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none;">{% if user_language == 'en' %}Help{% else %}Помощь{% endif %}</a>
+</div>
 
             <!-- Центрированная кнопка "Сохранить настройки" -->
             <div class="d-flex justify-content-center">

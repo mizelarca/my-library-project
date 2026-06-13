@@ -1,5 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+from django.db.models.signals import pre_save, pre_delete
+from django.dispatch import receiver
+import os
 
 # Модель для авторов
 class Author(models.Model):
@@ -46,7 +50,6 @@ class Status(models.Model):
         verbose_name = "Статус"
         verbose_name_plural = "Статусы"
 
-# Модель для книг (главная модель)
 class Book(models.Model):
     title = models.CharField(max_length=300, verbose_name="Название книги")
     author = models.ForeignKey(Author, on_delete=models.CASCADE, verbose_name="Автор")
@@ -98,7 +101,6 @@ class Book(models.Model):
         null=True,
         verbose_name="Номер в серии"
     )
-    # НОВЫЕ ПОЛЯ ДЛЯ ДАТ ЧТЕНИЯ
     date_started = models.DateField(
         verbose_name="Дата начала чтения",
         null=True,
@@ -111,6 +113,48 @@ class Book(models.Model):
         blank=True,
         help_text="Когда закончили читать"
     )
+    # Поле для музыки
+    music_url = models.URLField(blank=True, null=True, verbose_name="Ссылка на музыку")
+    music_title = models.CharField(max_length=200, blank=True, null=True, verbose_name="Название трека")
+    # Поле для настроения
+
+    MOOD_CHOICES = [
+        ('sad', 'Грустная'),
+        ('funny', 'Смешная'),
+        ('shocking', 'Шокирующая'),
+        ('cozy', 'Уютная'),
+        ('exciting', 'Захватывающая'),
+        ('thoughtful', 'Заставляет думать'),
+        ('useful', 'Полезная'),
+        ('calming', 'Успокаивающая'),
+        ('angry', 'Бесила'),
+        ('beautiful', 'Визуально красивая'),
+    ]
+    mood = models.CharField(max_length=20, blank=True, null=True, choices=MOOD_CHOICES, verbose_name="Настроение от книги")
+    total_reading_seconds = models.PositiveIntegerField(default=0)
+    
+    def get_mood_display_en(self):
+        """Возвращает английское название настроения"""
+        mood_map_en = {
+            'sad': 'Sad',
+            'funny': 'Funny',
+            'shocking': 'Shocking',
+            'cozy': 'Cozy',
+            'exciting': 'Exciting',
+            'thoughtful': 'Thoughtful',
+            'useful': 'Useful',
+            'calming': 'Calming',
+            'angry': 'Angry',
+            'beautiful': 'Beautiful',
+        }
+        return mood_map_en.get(self.mood, '')
+    
+    def __str__(self):
+        return f"{self.title} — {self.author.name}"
+    mood = models.CharField(max_length=20, blank=True, null=True, choices=MOOD_CHOICES, verbose_name="Настроение от книги")
+    
+    # Время чтения (в секундах)
+    total_reading_seconds = models.PositiveIntegerField(default=0, verbose_name='Общее время чтения (сек)')
 
     def __str__(self):
         return f"{self.title} — {self.author.name}"
@@ -119,6 +163,30 @@ class Book(models.Model):
         verbose_name = "Книга"
         verbose_name_plural = "Книги"
         ordering = ['-created_at']
+
+
+  # Модель для сессий чтения (таймер)
+class ReadingSession(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='sessions')
+    start_time = models.DateTimeField(default=timezone.now)
+    end_time = models.DateTimeField(null=True, blank=True)
+    duration_seconds = models.PositiveIntegerField(default=0)  # в секундах
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def save(self, *args, **kwargs):
+        # Если сессия завершена и длительность не посчитана
+        if not self.is_active and self.end_time and self.duration_seconds == 0:
+            delta = self.end_time - self.start_time
+            self.duration_seconds = int(delta.total_seconds())
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.book.title} - {self.start_time.strftime('%d.%m.%Y %H:%M:%S')}"
+
 
 # Модель для коллекций
 class Collection(models.Model):
@@ -139,6 +207,7 @@ class Collection(models.Model):
         verbose_name_plural = "Коллекции"
         ordering = ['-created_at']
 
+
 # Промежуточная модель для связи коллекции и книги
 class CollectionBook(models.Model):
     """Промежуточная модель для связи коллекции и книги"""
@@ -154,6 +223,7 @@ class CollectionBook(models.Model):
     def __str__(self):
         return f"{self.book.title} в {self.collection.name}"
 
+
 # Модель книжного вызова
 class ReadingChallenge(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='challenge')
@@ -165,22 +235,19 @@ class ReadingChallenge(models.Model):
     def __str__(self):
         return f"{self.user.username} – {self.goal} книг в {self.year}"
 
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     bio = models.TextField(max_length=500, blank=True, null=True)
-    
+
     # Новые поля
     theme = models.CharField(max_length=10, choices=[('light', 'Светлая'), ('dark', 'Тёмная')], default='light')
     language = models.CharField(max_length=10, choices=[('ru', 'Русский'), ('en', 'English')], default='ru')
-    
+
     def __str__(self):
         return f'Профиль пользователя {self.user.username}'
 
-import os
-
-from django.db.models.signals import pre_save, pre_delete
-from django.dispatch import receiver
 
 @receiver(pre_save, sender=Book)
 def delete_old_cover(sender, instance, **kwargs):

@@ -1,4 +1,6 @@
 {% extends 'catalog/base.html' %}
+{% load static %}
+{% load book_filters %}
 
 {% block title %}{{ book.title }}{% endblock %}
 
@@ -18,46 +20,67 @@
         <p><strong>{% if user_language == 'en' %}Status:{% else %}Статус:{% endif %}</strong> {{ book.status.get_name_display }}</p>
 
         <!-- Рейтинг звёздами -->
+
         <p>
-            <strong>{% if user_language == 'en' %}Rating:{% else %}Рейтинг:{% endif %}</strong>
-            <span class="rating-stars">
-                {% for i in "12345"|make_list %}
-                    {% if forloop.counter <= book.rating %}
-                        <span class="star-filled">★</span>
-                    {% else %}
-                        <span class="star-empty">★</span>
-                    {% endif %}
-                {% endfor %}
-            </span>
-        </p>
+    <strong>{% if user_language == 'en' %}Rating:{% else %}Рейтинг:{% endif %}</strong>
+    <span class="rating-stars">
+        {% for i in "12345"|make_list %}
+            {% if forloop.counter <= book.rating %}
+                <span class="star-filled">★</span>
+            {% else %}
+                <span class="star-empty">★</span>
+            {% endif %}
+        {% endfor %}
+    </span>
+</p>
 
-<p><strong>{% if user_language == 'en' %}Description:{% else %}Описание:{% endif %}</strong> {{ book.description|default:"{% if user_language == 'en' %}No description{% else %}Нет описания{% endif %}"|linebreaks }}</p>
-{% if book.format %}
-    <p><strong>{% if user_language == 'en' %}Format:{% else %}Формат:{% endif %}</strong> {{ book.get_format_display }}</p>
+<!-- Настроение книги -->
+{% if book.mood %}
+<p>
+    <strong>{% if user_language == 'en' %}Mood:{% else %}Настроение:{% endif %}</strong>
+    {{ book.mood|mood_emoji }}
+    <span class="text-muted">
+        {% if user_language == 'en' %}
+            ({{ book.get_mood_display_en }})
+        {% else %}
+            ({{ book.get_mood_display }})
+        {% endif %}
+    </span>
+</p>
 {% endif %}
 
-{% if book.series %}
-    <p><strong>{% if user_language == 'en' %}Series:{% else %}Серия:{% endif %}</strong> {{ book.series }}{% if book.series_number %} ({% if user_language == 'en' %}No.{% else %}№{% endif %}{{ book.series_number }}){% endif %}</p>
-{% endif %}
+        {% if book.mood %}
+            <p><strong>{% if user_language == 'en' %}Mood:{% else %}Настроение:{% endif %}</strong> {{ book.get_mood_display }}</p>
+        {% endif %}
 
-{% if book.notes %}
-    <p><strong>{% if user_language == 'en' %}Notes:{% else %}Заметки:{% endif %}</strong> {{ book.notes|linebreaks }}</p>
-{% endif %}
+        <p><strong>{% if user_language == 'en' %}Description:{% else %}Описание:{% endif %}</strong> {{ book.description|default:"{% if user_language == 'en' %}No description{% else %}Нет описания{% endif %}"|linebreaks }}</p>
+        
+        {% if book.format %}
+            <p><strong>{% if user_language == 'en' %}Format:{% else %}Формат:{% endif %}</strong> {{ book.get_format_display }}</p>
+        {% endif %}
 
-{% if book.quotes %}
-    <div class="mt-3">
-        <h5>{% if user_language == 'en' %}Quotes{% else %}Цитаты{% endif %}</h5>
-        <div class="quotes-list">
-            {% for quote in book.quotes.splitlines %}
-                {% if quote.strip %}
-                    <blockquote class="blockquote mb-2">
-                        <p class="mb-0">“{{ quote.strip }}”</p>
-                    </blockquote>
-                {% endif %}
-            {% endfor %}
-        </div>
-    </div>
-{% endif %}
+        {% if book.series %}
+            <p><strong>{% if user_language == 'en' %}Series:{% else %}Серия:{% endif %}</strong> {{ book.series }}{% if book.series_number %} ({% if user_language == 'en' %}No.{% else %}№{% endif %}{{ book.series_number }}){% endif %}</p>
+        {% endif %}
+
+        {% if book.notes %}
+            <p><strong>{% if user_language == 'en' %}Notes:{% else %}Заметки:{% endif %}</strong> {{ book.notes|linebreaks }}</p>
+        {% endif %}
+
+        {% if book.quotes %}
+            <div class="mt-3">
+                <h5>{% if user_language == 'en' %}Quotes{% else %}Цитаты{% endif %}</h5>
+                <div class="quotes-list">
+                    {% for quote in book.quotes.splitlines %}
+                        {% if quote.strip %}
+                            <blockquote class="blockquote mb-2">
+                                <p class="mb-0">“{{ quote.strip }}”</p>
+                            </blockquote>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
 
         <!-- Даты чтения -->
         <div class="mb-3">
@@ -69,7 +92,68 @@
             {% endif %}
         </div>
 
-        <!-- Кнопки с увеличенным нижним отступом mb-5 -->
+        <!-- Музыка к книге -->
+        {% if book.music_url %}
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="p-2 rounded" style="background-color: #f8f5f0;">
+                    <div class="d-flex align-items-center gap-2">
+                        <strong>Музыка:</strong>
+                        {% if book.music_title %}
+                            <span>{{ book.music_title }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="mt-2">
+                        {% if 'youtube.com' in book.music_url or 'youtu.be' in book.music_url %}
+                            <div class="ratio ratio-16x9">
+                                <iframe src="https://www.youtube.com/embed/{{ book.music_url|slice:'-11:' }}" 
+                                        title="YouTube player" frameborder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowfullscreen></iframe>
+                            </div>
+                        {% elif 'open.spotify.com' in book.music_url %}
+                            <iframe src="https://open.spotify.com/embed/track/{{ book.music_url|slice:'-22:' }}" 
+                                    width="100%" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        {% else %}
+                            <a href="{{ book.music_url }}" target="_blank" class="btn btn-sm" style="background-color: #797b3a; color: white;">Открыть</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Таймер чтения -->
+        <a href="{% url 'timer_page' %}?book_id={{ book.id }}" class="btn btn-outline-secondary">
+    <i class="bi bi-stopwatch"></i> Таймер
+</a>
+        <!-- Модальное окно для ручного добавления времени -->
+        <div class="modal fade" id="manualAddModal" tabindex="-1" aria-labelledby="manualAddModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content" style="background-color: #efe9dd; border-radius: 20px;">
+                    <div class="modal-header" style="border-bottom-color: #d1c4b3;">
+                        <h5 class="modal-title" id="manualAddModalLabel">Добавить время чтения вручную</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Минуты</label>
+                            <input type="number" id="manualMinutes" class="form-control" min="0" value="0">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Секунды</label>
+                            <input type="number" id="manualSeconds" class="form-control" min="0" max="59" value="0">
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top-color: #d1c4b3;">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: #d1c4b3;">Отмена</button>
+                        <button type="button" class="btn btn-primary" id="manualSaveBtn" style="background-color: #797b3a; border-color: #797b3a;">Сохранить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопки -->
         <div class="mt-3 mb-5">
             <a href="{% url 'book_edit' book.id %}" class="btn btn-primary">{% if user_language == 'en' %}Edit{% else %}Редактировать{% endif %}</a>
             <a href="{% url 'add_book_to_collection' book.id %}" class="btn btn-outline-primary">
@@ -79,7 +163,6 @@
     </div>
 </div>
 
-<!-- Стили для звёзд -->
 <style>
     .rating-stars {
         font-size: 1.5rem;
@@ -91,4 +174,204 @@
         color: #ccc;
     }
 </style>
+
+<script>
+let activeSessionId = null;
+let timerInterval = null;
+
+function formatTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    if (hours > 0) {
+        return `${hours}ч ${minutes}м ${secs}с`;
+    } else if (minutes > 0) {
+        return `${minutes}м ${secs}с`;
+    }
+    return `${secs}с`;
+}
+
+function loadStats() {
+    fetch(`/api/timer/stats/{{ book.id }}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('totalTimeDisplay').innerText = data.total_str;
+                
+                const sessionsList = document.getElementById('sessionsList');
+                if (data.sessions.length === 0) {
+                    sessionsList.innerHTML = '<li class="text-muted">Нет сессий за последний месяц</li>';
+                } else {
+                    sessionsList.innerHTML = data.sessions.map(s => 
+                        `<li>📖 ${s.start} — ${s.duration_str}</li>`
+                    ).join('');
+                }
+                
+                if (data.active_session) {
+                    activeSessionId = data.active_session.id;
+                    document.getElementById('timerStartBtn').disabled = true;
+                    document.getElementById('timerPauseBtn').disabled = false;
+                    document.getElementById('timerStopBtn').disabled = false;
+                    document.getElementById('activeTimerInfo').style.display = 'block';
+                    updateElapsed(data.active_session.elapsed);
+                    startTimer();
+                } else {
+                    activeSessionId = null;
+                    document.getElementById('timerStartBtn').disabled = false;
+                    document.getElementById('timerPauseBtn').disabled = true;
+                    document.getElementById('timerStopBtn').disabled = true;
+                    document.getElementById('activeTimerInfo').style.display = 'none';
+                    stopTimer();
+                }
+            }
+        });
+}
+
+function updateElapsed(seconds) {
+    document.getElementById('activeElapsed').innerText = formatTime(seconds);
+}
+
+let currentElapsed = 0;
+
+function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    const elapsedSpan = document.getElementById('activeElapsed');
+    if (elapsedSpan.innerText) {
+        // Парсим текущее значение
+        const text = elapsedSpan.innerText;
+        let totalSeconds = 0;
+        const hoursMatch = text.match(/(\d+)ч/);
+        const minutesMatch = text.match(/(\d+)м/);
+        const secondsMatch = text.match(/(\d+)с/);
+        if (hoursMatch) totalSeconds += parseInt(hoursMatch[1]) * 3600;
+        if (minutesMatch) totalSeconds += parseInt(minutesMatch[1]) * 60;
+        if (secondsMatch) totalSeconds += parseInt(secondsMatch[1]);
+        currentElapsed = totalSeconds;
+    } else {
+        currentElapsed = 0;
+    }
+    
+    timerInterval = setInterval(() => {
+        currentElapsed++;
+        updateElapsed(currentElapsed);
+    }, 1000);
+}
+
+function stopTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
+
+document.getElementById('timerStartBtn').addEventListener('click', function() {
+    fetch(`/api/timer/start/{{ book.id }}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadStats();
+        } else {
+            alert(data.error);
+        }
+    });
+});
+
+document.getElementById('timerPauseBtn').addEventListener('click', function() {
+    if (!activeSessionId) return;
+    fetch(`/api/timer/pause/${activeSessionId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadStats();
+        } else {
+            alert(data.error);
+        }
+    });
+});
+
+document.getElementById('timerStopBtn').addEventListener('click', function() {
+    if (!activeSessionId) return;
+    fetch(`/api/timer/stop/${activeSessionId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            activeSessionId = null;
+            loadStats();
+        } else {
+            alert(data.error);
+        }
+    });
+});
+
+document.getElementById('manualSaveBtn').addEventListener('click', function() {
+    const minutes = parseInt(document.getElementById('manualMinutes').value) || 0;
+    const seconds = parseInt(document.getElementById('manualSeconds').value) || 0;
+    
+    if (minutes === 0 && seconds === 0) {
+        alert('Введите время больше 0');
+        return;
+    }
+    
+    fetch(`/api/timer/manual/{{ book.id }}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ minutes: minutes, seconds: seconds })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('manualMinutes').value = 0;
+            document.getElementById('manualSeconds').value = 0;
+            bootstrap.Modal.getInstance(document.getElementById('manualAddModal')).hide();
+            loadStats();
+        } else {
+            alert(data.error);
+        }
+    });
+});
+
+loadStats();
+
+// Подтверждение при закрытии страницы с активной сессией
+window.addEventListener('beforeunload', function(e) {
+    if (activeSessionId) {
+        e.preventDefault();
+        e.returnValue = 'У вас есть активная сессия чтения. Вы уверены, что хотите покинуть страницу?';
+        return e.returnValue;
+    }
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
 {% endblock %}

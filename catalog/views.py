@@ -15,18 +15,19 @@ from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from tablib import Dataset
 
 from .models import (
     Book, Author, Genre, Status, ReadingChallenge,
-    Profile, Collection, CollectionBook
+    Profile, Collection, CollectionBook, ReadingSession
 )
 from .forms import (
     BookForm, AuthorForm, GenreForm, ChallengeForm,
     UserForm, ProfileForm, CollectionForm
 )
 from .resources import BookResource
-
 
 def home(request):
     return render(request, 'catalog/home.html')
@@ -800,3 +801,287 @@ def change_book_status(request, book_id):
         return JsonResponse({'success': False, 'error': 'Неверный статус'})
     
     return JsonResponse({'success': False, 'error': 'Неверный запрос'})
+
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from .models import ReadingSession
+import json
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def timer_start(request, book_id):
+    """Начать сессию чтения"""
+    try:
+        book = Book.objects.get(id=book_id, owner=request.user)
+        # Проверяем активную сессию
+        active = ReadingSession.objects.filter(book=book, is_active=True).first()
+        if active:
+            return JsonResponse({'error': 'Активная сессия уже есть'}, status=400)
+        
+        session = ReadingSession.objects.create(
+            book=book,
+            start_time=timezone.now(),
+            is_active=True
+        )
+        return JsonResponse({
+            'success': True,
+            'session_id': session.id,
+            'start_time': session.start_time.isoformat()
+        })
+    except Book.DoesNotExist:
+        return JsonResponse({'error': 'Книга не найдена'}, status=404)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def timer_pause(request, session_id):
+    """Поставить на паузу"""
+    try:
+        session = ReadingSession.objects.get(id=session_id, book__owner=request.user, is_active=True)
+        session.end_time = timezone.now()
+        session.is_active = False
+        session.save()
+        
+        # Обновляем общее время книги
+        book = session.book
+        total_seconds = sum(s.duration_seconds for s in book.sessions.all())
+        book.total_reading_seconds = total_seconds
+        book.save()
+        
+        return JsonResponse({
+            'success': True,
+            'duration_seconds': session.duration_seconds,
+            'total_seconds': book.total_reading_seconds
+        })
+    except ReadingSession.DoesNotExist:
+        return JsonResponse({'error': 'Сессия не найдена'}, status=404)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def timer_stop(request, session_id):
+    """Полностью остановить (удалить активную сессию)"""
+    try:
+        session = ReadingSession.objects.get(id=session_id, book__owner=request.user, is_active=True)
+        # Удаляем сессию, так как пользователь нажал Стоп без сохранения
+        session.delete()
+        return JsonResponse({'success': True})
+    except ReadingSession.DoesNotExist:
+        return JsonResponse({'error': 'Сессия не найдена'}, status=404)
+
+@require_http_methods(["GET"])
+def timer_get_stats(request, book_id):
+    """Получить статистику за последний месяц"""
+    try:
+        book = Book.objects.get(id=book_id, owner=request.user)
+        month_ago = timezone.now() - timezone.timedelta(days=30)
+        sessions = book.sessions.filter(
+            is_active=False,
+            created_at__gte=month_ago
+        ).order_by('-created_at')[:10]
+        
+        total_seconds = book.total_reading_seconds
+        total_hours = total_seconds // 3600
+        total_min = (total_seconds % 3600) // 60
+        total_sec = total_seconds % 60
+        
+        sessions_data = []
+        for s in sessions:
+            hours = s.duration_seconds // 3600
+            minutes = (s.duration_seconds % 3600) // 60
+            seconds = s.duration_seconds % 60
+            sessions_data.append({
+                'id': s.id,
+                'start': s.start_time.strftime('%d.%m.%Y %H:%M:%S'),
+                'duration': s.duration_seconds,
+                'duration_str': f"{hours}ч {minutes}м {seconds}с" if hours > 0 else f"{minutes}м {seconds}с"
+            })
+        
+        # Активная сессия
+        active = ReadingSession.objects.filter(book=book, is_active=True).first()
+        active_data = None
+        if active:
+            elapsed = int((timezone.now() - active.start_time).total_seconds())
+            elapsed_hours = elapsed // 3600
+            elapsed_min = (elapsed % 3600) // 60
+            elapsed_sec = elapsed % 60
+            active_data = {
+                'id': active.id,
+                'start': active.start_time.strftime('%d.%m.%Y %H:%M:%S'),
+                'elapsed': elapsed,
+                'elapsed_str': f"{elapsed_hours}ч {elapsed_min}м {elapsed_sec}с" if elapsed_hours > 0 else f"{elapsed_min}м {elapsed_sec}с"
+            }
+        
+        return JsonResponse({
+            'success': True,
+            'total_seconds': total_seconds,
+            'total_str': f"{total_hours}ч {total_min}м {total_sec}с",
+            'sessions': sessions_data,
+            'active_session': active_data
+        })
+    except Book.DoesNotExist:
+        return JsonResponse({'error': 'Книга не найдена'}, status=404)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def timer_manual_add(request, book_id):
+    """Ручное добавление времени"""
+    try:
+        data = json.loads(request.body)
+        minutes = int(data.get('minutes', 0))
+        seconds = int(data.get('seconds', 0))
+        total_seconds = minutes * 60 + seconds
+        
+        if total_seconds <= 0:
+            return JsonResponse({'error': 'Время должно быть больше 0'}, status=400)
+        
+        book = Book.objects.get(id=book_id, owner=request.user)
+        book.total_reading_seconds += total_seconds
+        book.save()
+        
+        # Создаём запись сессии для истории (ручное добавление)
+        from django.utils import timezone
+        now = timezone.now()
+        ReadingSession.objects.create(
+            book=book,
+            start_time=now,
+            end_time=now,
+            duration_seconds=total_seconds,
+            is_active=False
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'total_seconds': book.total_reading_seconds
+        })
+    except Book.DoesNotExist:
+        return JsonResponse({'error': 'Книга не найдена'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@login_required
+def timer_page(request):
+    """Страница таймера чтения"""
+    book_id = request.GET.get('book_id')
+    book = None
+    if book_id:
+        try:
+            book = Book.objects.get(id=book_id, owner=request.user)
+        except Book.DoesNotExist:
+            pass
+    
+    books = Book.objects.filter(owner=request.user).order_by('title')
+    return render(request, 'catalog/timer.html', {'book': book, 'books': books})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def timer_delete_session(request, session_id):
+    """Удаление сессии и вычитание времени из общего"""
+    try:
+        session = ReadingSession.objects.get(id=session_id, book__owner=request.user)
+        book = session.book
+        
+        # Вычитаем время из общего
+        book.total_reading_seconds -= session.duration_seconds
+        if book.total_reading_seconds < 0:
+            book.total_reading_seconds = 0
+        book.save()
+        
+        # Удаляем сессию
+        session.delete()
+        
+        return JsonResponse({'success': True})
+    except ReadingSession.DoesNotExist:
+        return JsonResponse({'error': 'Сессия не найдена'}, status=404)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def timer_reset_all(request, book_id):
+    """Сброс всего времени чтения книги и удаление всех сессий"""
+    try:
+        book = Book.objects.get(id=book_id, owner=request.user)
+        # Удаляем все сессии
+        ReadingSession.objects.filter(book=book).delete()
+        # Сбрасываем общее время
+        book.total_reading_seconds = 0
+        book.save()
+        return JsonResponse({'success': True})
+    except Book.DoesNotExist:
+        return JsonResponse({'error': 'Книга не найдена'}, status=404)
+
+@login_required
+def heatmap_view(request):
+    """Страница с тепловой картой чтения (таймер + прочитанные книги по времени добавления)"""
+    from django.db.models import Sum
+    from django.utils import timezone
+    
+    # 1. Данные из таймера (сессии)
+    sessions = ReadingSession.objects.filter(
+        book__owner=request.user,
+        is_active=False,
+        duration_seconds__gt=0
+    )
+    
+    # 2. Данные из прочитанных книг (по дате добавления created_at)
+    finished_books = Book.objects.filter(
+        owner=request.user,
+        status__name='read',
+        date_finished__isnull=False
+    )
+    
+    # Создаём матрицу 7×24
+    heatmap = [[0] * 24 for _ in range(7)]
+    
+    # Обрабатываем сессии таймера
+    for session in sessions:
+        if session.start_time:
+            weekday = session.start_time.weekday()
+            hour = session.start_time.hour
+            minutes = session.duration_seconds // 60
+            heatmap[weekday][hour] += minutes
+    
+    # Обрабатываем прочитанные книги - используем время created_at (когда книга была добавлена в библиотеку)
+    for book in finished_books:
+        if book.created_at:
+            weekday = book.created_at.weekday()
+            hour = book.created_at.hour
+            # Каждая книга добавляет 60 минут, распределяя по реальному времени добавления
+            heatmap[weekday][hour] += 60
+    
+    # Находим максимум
+    max_value = max(max(row) for row in heatmap) if heatmap else 1
+    
+    # Подсчёт статистики
+    total_sessions = sessions.count()
+    total_finished_books = finished_books.count()
+    total_time_sessions = sum(s.duration_seconds for s in sessions)
+    total_time_finished = total_finished_books * 3600
+    total_time = total_time_sessions + total_time_finished
+    
+    total_hours = total_time // 3600
+    total_minutes = (total_time % 3600) // 60
+    
+    max_hour = max(range(24), key=lambda h: sum(heatmap[d][h] for d in range(7)))
+    max_weekday = max(range(7), key=lambda d: sum(heatmap[d][h] for h in range(24)))
+    
+    weekdays_ru = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС']
+    weekdays_en = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+    
+    context = {
+        'heatmap': heatmap,
+        'max_value': max_value,
+        'weekdays_ru': weekdays_ru,
+        'weekdays_en': weekdays_en,
+        'hours': list(range(24)),
+        'total_sessions': total_sessions,
+        'total_finished_books': total_finished_books,
+        'total_hours': total_hours,
+        'total_minutes': total_minutes,
+        'max_hour': max_hour,
+        'max_weekday': max_weekday,
+        'weekdays_list': weekdays_ru if request.user.profile.language == 'ru' else weekdays_en,
+    }
+    return render(request, 'catalog/heatmap.html', context)
+
+@login_required
+def help_page(request):
+    """Страница с пояснениями как работает сайт"""
+    return render(request, 'catalog/help.html')

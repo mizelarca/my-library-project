@@ -1,21 +1,20 @@
 {% extends 'catalog/base.html' %}
 {% load static %}
+{% load book_filters %}
 
 {% block title %}{% if user_language == 'en' %}My books{% else %}Мои книги{% endif %}{% endblock %}
 
 {% block content %}
-<h1 class="display-4 mb-4">{% if user_language == 'en' %}My books{% else %}Мои книги{% endif %}</h1>
-
-<!-- Сообщения -->
+<h1 class="mb-4" style="font-family: 'Great Vibes', cursive; color: #3e2c1f; font-size: 2.5rem;">{% if user_language == 'en' %}My books{% else %}Мои книги{% endif %}</h1>
 
 <!-- Поиск и фильтры -->
-<form method="get" class="mb-4">
+<form method="get" class="mb-4" id="filterForm">
     <div class="row g-2">
         <div class="col-md-4">
-            <input type="text" name="search" class="form-control" placeholder="{% if user_language == 'en' %}Search by title{% else %}Поиск по названию{% endif %}" value="{{ search_query }}">
+            <input type="text" name="search" class="form-control" placeholder="{% if user_language == 'en' %}Search by title{% else %}Поиск по названию{% endif %}" value="{{ search_query }}" style="background-color: #f8f5f0; border-color: #d1c4b3; font-family: Georgia, serif;">
         </div>
         <div class="col-md-2">
-            <select name="status" class="form-select">
+            <select name="status" class="form-select" style="background-color: #f8f5f0; border-color: #d1c4b3; font-family: Georgia, serif;">
                 <option value="">{% if user_language == 'en' %}All statuses{% else %}Все статусы{% endif %}</option>
                 {% for status in all_statuses %}
                     <option value="{{ status.name }}" {% if status_filter == status.name %}selected{% endif %}>
@@ -25,7 +24,7 @@
             </select>
         </div>
         <div class="col-md-2">
-            <select name="genre" class="form-select">
+            <select name="genre" class="form-select" style="background-color: #f8f5f0; border-color: #d1c4b3; font-family: Georgia, serif;">
                 <option value="">{% if user_language == 'en' %}All genres{% else %}Все жанры{% endif %}</option>
                 {% for genre in all_genres %}
                     <option value="{{ genre.name }}" {% if genre_filter == genre.name %}selected{% endif %}>
@@ -35,7 +34,7 @@
             </select>
         </div>
         <div class="col-md-2">
-            <select name="sort" class="form-select">
+            <select name="sort" class="form-select" style="background-color: #f8f5f0; border-color: #d1c4b3; font-family: Georgia, serif;">
                 <option value="-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>{% if user_language == 'en' %}Newest first{% else %}Новые сначала{% endif %}</option>
                 <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>{% if user_language == 'en' %}Oldest first{% else %}Старые сначала{% endif %}</option>
                 <option value="title" {% if sort_by == 'title' %}selected{% endif %}>{% if user_language == 'en' %}By title{% else %}По названию{% endif %}</option>
@@ -44,9 +43,11 @@
             </select>
         </div>
         <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100 h-100 d-flex align-items-center justify-content-center" style="padding-top: 0; padding-bottom: 0; background-color: #797b3a; border-color: #797b3a;">{% if user_language == 'en' %}Apply{% else %}Применить{% endif %}</button>
+            <button type="submit" class="btn w-100 h-100 d-flex align-items-center justify-content-center" style="padding-top: 0; padding-bottom: 0; background-color: #797b3a; border-color: #797b3a; color: white; font-family: Georgia, serif;">{% if user_language == 'en' %}Apply{% else %}Применить{% endif %}</button>
         </div>
     </div>
+    <input type="hidden" name="view" id="viewModeInput" value="{{ view_mode }}">
+    <input type="hidden" name="page" value="{{ page_obj.number }}">
 </form>
 
 <!-- Форма для массового удаления -->
@@ -55,45 +56,37 @@
     <input type="hidden" name="book_ids" id="selectedBookIds">
 </form>
 
-<!-- Кнопки управления: Добавить книгу, Экспорт, Импорт, Плитка/Список -->
+<!-- Кнопки управления -->
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <!-- Левая группа: Добавить книгу + Экспорт + Импорт -->
     <div class="d-flex gap-2 flex-wrap align-items-center">
-        <!-- Добавить книгу (увеличенная, заметная) -->
-        <a href="{% url 'book_add' %}" class="btn" style="background-color: #797b3a; color: white; border: none; border-radius: 50px; padding: 0.6rem 1.5rem; font-size: 1.1rem; font-weight: 500; text-decoration: none;">{% if user_language == 'en' %}Add book{% else %}Добавить книгу{% endif %}</a>
-
-<button type="button" id="bulkDeleteBtn" class="btn btn-danger" style="display: none;">
-    <i class="bi bi-trash me-1"></i> {% if user_language == 'en' %}Delete selected{% else %}Удалить выбранные{% endif %}
-</button>
-
-        <!-- Экспорт -->
+        <a href="{% url 'book_add' %}" class="btn" style="background-color: #797b3a; color: white; border: none; border-radius: 50px; padding: 0.6rem 1.5rem; font-size: 1.1rem; font-weight: 500; text-decoration: none; font-family: Georgia, serif;">{% if user_language == 'en' %}Add book{% else %}Добавить книгу{% endif %}</a>
+        <button type="button" id="bulkDeleteBtn" class="btn btn-danger" style="display: none;">
+            <i class="bi bi-trash me-1"></i> {% if user_language == 'en' %}Delete selected{% else %}Удалить выбранные{% endif %}
+        </button>
         <div class="dropdown d-inline-block">
-            <button type="button" class="btn" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: transparent; border: none; color: #797b3a; padding: 0.6rem 1rem; font-size: 1rem;">
+            <button type="button" class="btn" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: transparent; border: none; color: #797b3a; padding: 0.6rem 1rem; font-size: 1rem; font-family: Georgia, serif;">
                 <i class="bi bi-download me-1"></i> {% if user_language == 'en' %}Export{% else %}Экспорт{% endif %}
             </button>
             <ul class="dropdown-menu" aria-labelledby="exportDropdown" style="background-color: #efe9dd; border-color: #d1c4b3;">
-                <li><a class="dropdown-item" href="{% url 'export_books' %}" style="color: #3e2c1f;">CSV (UTF-8)</a></li>
-                <li><a class="dropdown-item" href="{% url 'export_books_xlsx' %}" style="color: #3e2c1f;">Excel XLSX</a></li>
+                <li><a class="dropdown-item" href="{% url 'export_books' %}" style="color: #3e2c1f; font-family: Georgia, serif;">CSV (UTF-8)</a></li>
+                <li><a class="dropdown-item" href="{% url 'export_books_xlsx' %}" style="color: #3e2c1f; font-family: Georgia, serif;">Excel XLSX</a></li>
             </ul>
         </div>
-        <!-- Импорт -->
-        <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#importModal" style="background: transparent; border: none; color: #797b3a; padding: 0.6rem 1rem; font-size: 1rem;">
+        <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#importModal" style="background: transparent; border: none; color: #797b3a; padding: 0.6rem 1rem; font-size: 1rem; font-family: Georgia, serif;">
             <i class="bi bi-upload me-1"></i> {% if user_language == 'en' %}Import{% else %}Импорт{% endif %}
         </button>
     </div>
-
-    <!-- Правая группа: Плитка и Список -->
     <div class="d-flex gap-2">
-        <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}{% if genre_filter %}genre={{ genre_filter }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}view=grid"
+        <button onclick="setViewMode('grid')" id="gridViewBtn"
            class="btn {% if view_mode == 'grid' %}btn-primary{% else %}btn-outline-secondary{% endif %}"
-           style="{% if view_mode == 'grid' %}background-color: #d1c4b3; border-color: #d1c4b3; color: #000;{% else %}border-color: #a58d76; color: #3e2c1f;{% endif %} border-radius: 50px; padding: 0.5rem 1rem; font-size: 1rem;">
+           style="{% if view_mode == 'grid' %}background-color: #d1c4b3; border-color: #d1c4b3; color: #000;{% else %}border-color: #a58d76; color: #3e2c1f;{% endif %} border-radius: 50px; padding: 0.5rem 1rem; font-size: 1rem; font-family: Georgia, serif;">
             <i class="bi bi-grid-3x3-gap-fill"></i> {% if user_language == 'en' %}Grid{% else %}Плитка{% endif %}
-        </a>
-        <a href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}{% if genre_filter %}genre={{ genre_filter }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}view=list"
+        </button>
+        <button onclick="setViewMode('list')" id="listViewBtn"
            class="btn {% if view_mode == 'list' %}btn-primary{% else %}btn-outline-secondary{% endif %}"
-           style="{% if view_mode == 'list' %}background-color: #d1c4b3; border-color: #d1c4b3; color: #000;{% else %}border-color: #a58d76; color: #3e2c1f;{% endif %} border-radius: 50px; padding: 0.5rem 1rem; font-size: 1rem;">
+           style="{% if view_mode == 'list' %}background-color: #d1c4b3; border-color: #d1c4b3; color: #000;{% else %}border-color: #a58d76; color: #3e2c1f;{% endif %} border-radius: 50px; padding: 0.5rem 1rem; font-size: 1rem; font-family: Georgia, serif;">
             <i class="bi bi-list-ul"></i> {% if user_language == 'en' %}List{% else %}Список{% endif %}
-        </a>
+        </button>
     </div>
 </div>
 
@@ -109,20 +102,20 @@
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="importFile" class="form-label">{% if user_language == 'en' %}Select CSV or XLSX file{% else %}Выберите CSV или XLSX файл{% endif %}</label>
-                        <input type="file" class="form-control" id="importFile" name="file" accept=".csv,.xlsx" required>
-                        <div class="form-text text-muted mt-2">
+                        <label for="importFile" class="form-label" style="font-family: Georgia, serif;">{% if user_language == 'en' %}Select CSV or XLSX file{% else %}Выберите CSV или XLSX файл{% endif %}</label>
+                        <input type="file" class="form-control" id="importFile" name="file" accept=".csv,.xlsx" required style="background-color: #f8f5f0; border-color: #d1c4b3;">
+                        <div class="form-text text-muted mt-2" style="font-family: Georgia, serif;">
                             <i class="bi bi-info-circle"></i> {% if user_language == 'en' %}The file must contain columns:{% else %}Файл должен содержать колонки:{% endif %}
                             {% if user_language == 'en' %}Book title, Author, Genre, Status, Rating, Description, Format, Series, Series number, Notes, Start date, End date{% else %}Название книги, Автор, Жанр, Статус, Оценка, Описание, Формат, Серия, Номер в серии, Заметки, Дата начала чтения, Дата окончания чтения{% endif %}
                         </div>
                     </div>
-                    <div class="alert alert-info small">
+                    <div class="alert alert-info small" style="font-family: Georgia, serif;">
                         <i class="bi bi-download"></i> {% if user_language == 'en' %}First download a sample file via the "Export" button to see the correct format.{% else %}Сначала скачайте пример файла через кнопку "Экспорт", чтобы увидеть правильный формат.{% endif %}
                     </div>
                 </div>
                 <div class="modal-footer" style="border-top-color: #d1c4b3;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: #d1c4b3; color: #3e2c1f;">{% if user_language == 'en' %}Cancel{% else %}Отмена{% endif %}</button>
-                    <button type="submit" class="btn btn-primary" style="background-color: #797b3a; border-color: #797b3a;">{% if user_language == 'en' %}Import{% else %}Импортировать{% endif %}</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: #d1c4b3; color: #3e2c1f; font-family: Georgia, serif;">{% if user_language == 'en' %}Cancel{% else %}Отмена{% endif %}</button>
+                    <button type="submit" class="btn btn-primary" style="background-color: #797b3a; border-color: #797b3a; color: white; font-family: Georgia, serif;">{% if user_language == 'en' %}Import{% else %}Импортировать{% endif %}</button>
                 </div>
             </form>
         </div>
@@ -131,61 +124,69 @@
 
 {% if page_obj %}
     {% if view_mode == 'grid' %}
-        <!-- Вид плиткой с чекбоксами -->
+        <!-- Вид плиткой - вся карточка кликабельна -->
         <div class="row">
             {% for book in page_obj %}
-                <div class="col-md-3 col-lg-2 mb-4 card-item">
-                    <div class="card h-100" style="border-radius: 12px; overflow: hidden; position: relative; display: flex; flex-direction: column;">
-                        <!-- Чекбокс -->
-                        <div class="position-absolute top-0 start-0 p-2" style="z-index: 10;">
-                            <input type="checkbox" class="book-checkbox form-check-input" data-book-id="{{ book.id }}" style="transform: scale(1.2);">
-                        </div>
-
-                        <!-- Кликабельная обложка -->
-                        <a href="{% url 'book_detail' book.id %}" class="d-block" style="text-decoration: none;">
+                <div class="col-md-3 col-lg-2 col-sm-4 col-6 mb-4 card-item d-flex align-items-stretch">
+                    <div class="book-card w-100" data-book-url="{% url 'book_detail' book.id %}" style="cursor: pointer;">
+                        <div class="card h-100" style="border-radius: 16px; overflow: hidden; position: relative; display: flex; flex-direction: column; background-color: #e6d7c4; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: all 0.2s ease;">
+                            <div class="position-absolute top-0 start-0 p-2" style="z-index: 10;">
+                                <input type="checkbox" class="book-checkbox form-check-input" data-book-id="{{ book.id }}" style="transform: scale(1.2);" onclick="event.stopPropagation();">
+                            </div>
                             {% if book.cover_image %}
-                                <div style="width: 100%; padding-top: 100%; position: relative; overflow: hidden; border-radius: 12px 12px 0 0;">
+                                <div style="width: 100%; padding-top: 100%; position: relative; overflow: hidden;">
                                     <img src="{{ book.cover_image.url }}"
                                          style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"
                                          alt="{{ book.title }}">
                                 </div>
                             {% else %}
-                                <img src="https://via.placeholder.com/150x200?text=No+Cover" class="card-img-top" alt="No cover" style="border-radius: 12px 12px 0 0;">
+                                <div style="width: 100%; padding-top: 100%; position: relative; overflow: hidden; background-color: #d1c4b3;">
+                                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #a58d76; font-family: Georgia, serif; font-size: 0.8rem;">📖</div>
+                                </div>
                             {% endif %}
-                        </a>
-
-                        <!-- Нижняя часть карточки -->
-                        <div class="card-body d-flex flex-column" style="flex: 1;">
-                            <h6 class="card-title">{{ book.title|truncatechars:25 }}</h6>
-                            <p class="card-text small mb-2">{{ book.author.name|truncatechars:20 }}</p>
-
-                            <div class="mt-auto">
-                                <!-- Рейтинг звёздами -->
-                                <div class="rating-stars mb-2" style="font-size: 0.9rem;">
-                                    {% for i in "12345"|make_list %}
-                                        {% if forloop.counter <= book.rating %}
-                                            <span class="star-filled">★</span>
-                                        {% else %}
-                                            <span class="star-empty">★</span>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-
-                                <!-- Быстрый выбор статуса -->
+                            <div class="card-body d-flex flex-column" style="flex: 1; padding: 0.75rem;">
                                 <div class="mb-2">
-                                    <select class="status-select w-100" data-book-id="{{ book.id }}" style="font-size: 0.7rem; padding: 0.3rem; background-color: #f8f5f0; border: 1px solid #d1c4b3; border-radius: 8px; cursor: pointer;">
-                                        <option value="unread" {% if book.status.name == 'unread' %}selected{% endif %}>{% if user_language == 'en' %}Unread{% else %}Непрочитано{% endif %}</option>
-                                        <option value="reading" {% if book.status.name == 'reading' %}selected{% endif %}>{% if user_language == 'en' %}Reading{% else %}В процессе{% endif %}</option>
-                                        <option value="read" {% if book.status.name == 'read' %}selected{% endif %}>{% if user_language == 'en' %}Read{% else %}Прочитано{% endif %}</option>
-                                        <option value="abandoned" {% if book.status.name == 'abandoned' %}selected{% endif %}>{% if user_language == 'en' %}Abandoned{% else %}Брошено{% endif %}</option>
-                                    </select>
+                                    <div style="font-family: 'Great Vibes', cursive; font-size: 2rem; line-height: 1.2; font-weight: normal; color: #3e2c1f; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                                        {{ book.title }}
+                                    </div>
+                                    <small style="font-family: Georgia, serif; font-size: 0.8rem; color: #6c5a47; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 5px;">{{ book.author.name }}</small>
                                 </div>
-
-                                <!-- Кнопка удаления -->
-                                <form method="post" action="{% url 'book_delete' book.id %}" class="d-inline w-100" onsubmit="return confirm('{% if user_language == 'en' %}Are you sure you want to delete this book?{% else %}Вы уверены, что хотите удалить книгу?{% endif %}');">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; border-color: #a58d76; color: #a58d76;">{% if user_language == 'en' %}Delete{% else %}Удалить{% endif %}</button>
-                                </form>
+                                <div class="mt-auto">
+                                    <!-- Рейтинг звёздами + эмодзи музыки + эмодзи настроения в одну строку -->
+                                    <div class="mb-2 d-flex align-items-center justify-content-between" style="margin: 8px 0;">
+                                        <div style="display: flex; flex-direction: row; gap: 4px;">
+                                            {% for i in "12345"|make_list %}
+                                                {% if forloop.counter <= book.rating %}
+                                                    <span style="color: #d48a00; font-size: 1rem; text-shadow: 0 0 1px rgba(0,0,0,0.2);">★</span>
+                                                {% else %}
+                                                    <span style="color: #b0a088; font-size: 1rem;">☆</span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <div style="display: flex; flex-direction: row; gap: 6px;">
+                                            {% if book.music_url %}
+                                                <span style="font-size: 0.9rem;">🎧</span>
+                                            {% endif %}
+                                            {% if book.mood %}
+                                                <span style="font-size: 0.9rem;">{{ book.mood|mood_emoji }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="mb-2" onclick="event.stopPropagation();">
+                                        <select class="status-select w-100" data-book-id="{{ book.id }}" style="font-size: 0.7rem; padding: 0.4rem 0.5rem; background-color: #f8f5f0; border: 1px solid #d1c4b3; border-radius: 30px; cursor: pointer; font-family: Georgia, serif; text-align: center;">
+                                            <option value="unread" {% if book.status.name == 'unread' %}selected{% endif %}>{% if user_language == 'en' %}Unread{% else %}Непрочитано{% endif %}</option>
+                                            <option value="reading" {% if book.status.name == 'reading' %}selected{% endif %}>{% if user_language == 'en' %}Reading{% else %}В процессе{% endif %}</option>
+                                            <option value="read" {% if book.status.name == 'read' %}selected{% endif %}>{% if user_language == 'en' %}Read{% else %}Прочитано{% endif %}</option>
+                                            <option value="abandoned" {% if book.status.name == 'abandoned' %}selected{% endif %}>{% if user_language == 'en' %}Abandoned{% else %}Брошено{% endif %}</option>
+                                        </select>
+                                    </div>
+                                    <div onclick="event.stopPropagation();">
+                                        <form method="post" action="{% url 'book_delete' book.id %}" class="d-inline w-100" onsubmit="return confirm('{% if user_language == 'en' %}Are you sure you want to delete this book?{% else %}Вы уверены, что хотите удалить книгу?{% endif %}');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm w-100" style="font-size: 0.7rem; padding: 0.3rem 0.5rem; background-color: transparent; border: 1px solid #a58d76; color: #a58d76; font-family: Georgia, serif; border-radius: 30px;">{% if user_language == 'en' %}Delete{% else %}Удалить{% endif %}</button>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -193,185 +194,183 @@
             {% endfor %}
         </div>
     {% else %}
-        <!-- Вид списком -->
+        <!-- Вид списком - вся строка кликабельна -->
         <div class="list-group">
             {% for book in page_obj %}
-                <div class="list-group-item d-flex flex-wrap align-items-center justify-content-between" style="background-color: #e6d7c4; border-color: #d1c4b3;">
-                                    <div class="d-flex align-items-center gap-2">
-                        <input type="checkbox" class="book-checkbox form-check-input" data-book-id="{{ book.id }}" style="transform: scale(1.2);">
-                        <a href="{% url 'book_detail' book.id %}" class="text-decoration-none">
-                            <strong>{{ book.title }}</strong>
-                            <br><small>{{ book.author.name }} • {{ book.genre.name|default:"—" }}</small>
-                        </a>
-                    </div>
-                    <div class="d-flex align-items-center gap-2 mt-2 mt-sm-0">
-                        <div class="rating-stars" style="font-size: 0.8rem;">
-                            {% for i in "12345"|make_list %}
-                                {% if forloop.counter <= book.rating %}★{% else %}☆{% endif %}
-                            {% endfor %}
+                <div class="book-list-item" data-book-url="{% url 'book_detail' book.id %}" style="cursor: pointer;">
+                    <div class="list-group-item" style="background-color: #e6d7c4; border: none; border-bottom: 1px solid #d1c4b3; padding: 1.2rem 1rem;">
+                        <div class="d-flex align-items-center justify-content-between" style="gap: 20px;">
+                            <div class="d-flex align-items-center" style="gap: 15px; flex: 1;">
+                                <input type="checkbox" class="book-checkbox form-check-input" data-book-id="{{ book.id }}" style="transform: scale(1.2); flex-shrink: 0;" onclick="event.stopPropagation();">
+                                <div class="d-flex align-items-baseline" style="gap: 15px; flex-wrap: wrap;">
+                                    <span style="font-family: 'Great Vibes', cursive; font-size: 2rem; color: #3e2c1f; font-weight: normal;">{{ book.title }}</span>
+                                    <span style="font-family: Georgia, serif; font-size: 1rem; color: #6c5a47;">{{ book.author.name }}</span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center" style="gap: 15px; flex-shrink: 0;">
+                                <div style="display: flex; flex-direction: row; gap: 5px;" onclick="event.stopPropagation();">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= book.rating %}
+                                            <span style="color: #d48a00; font-size: 1.2rem; text-shadow: 0 0 1px rgba(0,0,0,0.2);">★</span>
+                                        {% else %}
+                                            <span style="color: #b0a088; font-size: 1.2rem;">☆</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% if book.music_url %}
+                                    <span style="font-size: 1.2rem;" onclick="event.stopPropagation();">🎧</span>
+                                {% endif %}
+                                {% if book.mood %}
+                                    <span style="font-size: 1.2rem;" onclick="event.stopPropagation();">{{ book.mood|mood_emoji }}</span>
+                                {% endif %}
+                                <div onclick="event.stopPropagation();">
+                                    <select class="status-select" data-book-id="{{ book.id }}" style="font-size: 0.8rem; padding: 0.4rem 1.8rem 0.4rem 0.8rem; background-color: #f8f5f0; border: 1px solid #d1c4b3; border-radius: 30px; cursor: pointer; font-family: Georgia, serif;">
+                                        <option value="unread" {% if book.status.name == 'unread' %}selected{% endif %}>{% if user_language == 'en' %}Unread{% else %}Непрочитано{% endif %}</option>
+                                        <option value="reading" {% if book.status.name == 'reading' %}selected{% endif %}>{% if user_language == 'en' %}Reading{% else %}В процессе{% endif %}</option>
+                                        <option value="read" {% if book.status.name == 'read' %}selected{% endif %}>{% if user_language == 'en' %}Read{% else %}Прочитано{% endif %}</option>
+                                        <option value="abandoned" {% if book.status.name == 'abandoned' %}selected{% endif %}>{% if user_language == 'en' %}Abandoned{% else %}Брошено{% endif %}</option>
+                                    </select>
+                                </div>
+                                <div onclick="event.stopPropagation();">
+                                    <form method="post" action="{% url 'book_delete' book.id %}" onsubmit="return confirm('{% if user_language == 'en' %}Are you sure you want to delete this book?{% else %}Вы уверены, что хотите удалить книгу?{% endif %}');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm" style="background-color: transparent; border: 1px solid #a58d76; color: #a58d76; font-family: Georgia, serif; border-radius: 30px; padding: 0.3rem 1rem;">{% if user_language == 'en' %}Delete{% else %}Удалить{% endif %}</button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
-                        <select class="status-select" data-book-id="{{ book.id }}" style="font-size: 0.7rem; padding: 0.2rem; background-color: #f8f5f0; border: 1px solid #d1c4b3; border-radius: 8px; cursor: pointer;">
-                            <option value="unread" {% if book.status.name == 'unread' %}selected{% endif %}>{% if user_language == 'en' %}Unread{% else %}Непрочитано{% endif %}</option>
-                            <option value="reading" {% if book.status.name == 'reading' %}selected{% endif %}>{% if user_language == 'en' %}Reading{% else %}В процессе{% endif %}</option>
-                            <option value="read" {% if book.status.name == 'read' %}selected{% endif %}>{% if user_language == 'en' %}Read{% else %}Прочитано{% endif %}</option>
-                            <option value="abandoned" {% if book.status.name == 'abandoned' %}selected{% endif %}>{% if user_language == 'en' %}Abandoned{% else %}Брошено{% endif %}</option>
-                        </select>
-                        <form method="post" action="{% url 'book_delete' book.id %}" onsubmit="return confirm('{% if user_language == 'en' %}Are you sure you want to delete this book?{% else %}Вы уверены, что хотите удалить книгу?{% endif %}');">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-danger">{% if user_language == 'en' %}Delete{% else %}Удалить{% endif %}</button>
-                        </form>
                     </div>
                 </div>
             {% endfor %}
         </div>
     {% endif %}
-{% endif %}
 
     <!-- Пагинация -->
     <nav aria-label="Page navigation" class="mt-4">
         <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}{% if genre_filter %}genre={{ genre_filter }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}page=1" style="background-color: #d1c4b3; border-color: #a58d76; color: #3e2c1f;">«</a>
+                    <a class="page-link" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}{% if genre_filter %}genre={{ genre_filter }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}&view={{ view_mode }}&page=1" style="background-color: #d1c4b3; border-color: #a58d76; color: #3e2c1f; font-family: Georgia, serif;">«</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}{% if genre_filter %}genre={{ genre_filter }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}page={{ page_obj.previous_page_number }}" style="background-color: #d1c4b3; border-color: #a58d76; color: #3e2c1f;">‹</a>
+                    <a class="page-link" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}{% if genre_filter %}genre={{ genre_filter }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}&view={{ view_mode }}&page={{ page_obj.previous_page_number }}" style="background-color: #d1c4b3; border-color: #a58d76; color: #3e2c1f; font-family: Georgia, serif;">‹</a>
                 </li>
             {% endif %}
 
             <li class="page-item active">
-                <span class="page-link" style="background-color: #797b3a; border-color: #797b3a; color: white;">
+                <span class="page-link" style="background-color: #797b3a; border-color: #797b3a; color: white; font-family: Georgia, serif;">
                     {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
                 </span>
             </li>
 
             {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}{% if genre_filter %}genre={{ genre_filter }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}page={{ page_obj.next_page_number }}" style="background-color: #d1c4b3; border-color: #a58d76; color: #3e2c1f;">›</a>
+                    <a class="page-link" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}{% if genre_filter %}genre={{ genre_filter }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}&view={{ view_mode }}&page={{ page_obj.next_page_number }}" style="background-color: #d1c4b3; border-color: #a58d76; color: #3e2c1f; font-family: Georgia, serif;">›</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}{% if genre_filter %}genre={{ genre_filter }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}page={{ page_obj.paginator.num_pages }}" style="background-color: #d1c4b3; border-color: #a58d76; color: #3e2c1f;">»</a>
+                    <a class="page-link" href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if status_filter %}status={{ status_filter }}&{% endif %}{% if genre_filter %}genre={{ genre_filter }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}&view={{ view_mode }}&page={{ page_obj.paginator.num_pages }}" style="background-color: #d1c4b3; border-color: #a58d76; color: #3e2c1f; font-family: Georgia, serif;">»</a>
                 </li>
             {% endif %}
         </ul>
     </nav>
+{% else %}
+    <p class="text-muted" style="font-family: Georgia, serif;">{% if user_language == 'en' %}You have no books yet{% else %}У вас пока нет книг{% endif %}</p>
+{% endif %}
 
 <style>
-    .rating-stars {
-        margin-top: 0.5rem;
-        font-size: 1.2rem;
+    .card-item {
+        animation: fadeInUp 0.4s ease-out forwards;
+        opacity: 0;
     }
-    .star-filled {
-        color: #ffc107;
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
-    .star-empty {
-        color: #ccc;
+    .book-card:hover .card {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.12) !important;
     }
-    .btn-outline-success:hover {
-        background-color: #797b3a !important;
-        border-color: #797b3a !important;
-        color: white !important;
+    .book-list-item:hover .list-group-item {
+        background-color: #e0cfb8 !important;
     }
-    .dropdown-item:hover {
-        background-color: #d1c4b3 !important;
-        color: #3e2c1f !important;
-    }
-    .dropdown-menu {
-        background-color: #efe9dd;
-        border-color: #d1c4b3;
-    }
-    .dropdown-item {
-        color: #3e2c1f;
-        transition: all 0.2s ease;
-    }
-
-    /* Стилизация выпадающего списка статуса */
     .status-select {
-        width: 100%;
-        font-size: 0.75rem;
-        padding: 0.4rem 0.5rem;
-        background-color: #f8f5f0;
-        border: 1px solid #d1c4b3;
-        border-radius: 30px;
-        cursor: pointer;
-        font-family: 'Open Sans', sans-serif;
-        transition: all 0.2s ease;
-        color: #3e2c1f;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23797b3a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.5rem center;
+        background-size: 12px;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
     }
-
     .status-select:hover {
         background-color: #e6d7c4;
         border-color: #a58d76;
     }
-
     .status-select:focus {
-        outline: none;
-        border-color: #797b3a;
-        box-shadow: 0 0 0 2px rgba(121, 123, 58, 0.25);
+        outline: none !important;
+        box-shadow: none !important;
     }
-
-    .status-select option {
-        background-color: #efe9dd;
-        color: #3e2c1f;
-        padding: 0.3rem;
-    }
-
-    @media (max-width: 768px) {
-        .status-select {
-            font-size: 0.7rem;
-            padding: 0.3rem 0.4rem;
-        }
-    }
-/* Стилизация выпадающего списка статуса */
-.status-select {
-    width: 100%;
-    font-size: 0.75rem;
-    padding: 0.4rem 1.8rem 0.4rem 0.8rem;
-    background-color: #f8f5f0;
-    border: 1px solid #d1c4b3;
-    border-radius: 30px;
-    cursor: pointer;
-    font-family: 'Open Sans', sans-serif;
-    transition: all 0.2s ease;
-    color: #3e2c1f;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23797b3a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.7rem center;
-    background-size: 14px;
-}
-
-.status-select:hover {
-    background-color: #e6d7c4;
-    border-color: #a58d76;
-}
-
-.status-select:focus,
-.status-select:active,
-.status-select:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-.status-select option {
-    background-color: #efe9dd;
-    color: #3e2c1f;
-    padding: 0.3rem;
-}
-
-/* Мобильная адаптация */
-@media (max-width: 768px) {
-    .status-select {
-        font-size: 0.7rem;
-        padding: 0.3rem 1.6rem 0.3rem 0.6rem;
-        background-size: 12px;
-    }
-}
 </style>
 
 <script>
+    // Клик по карточке/строке для перехода на книгу
+    document.addEventListener('DOMContentLoaded', function() {
+        // Для плиток
+        const bookCards = document.querySelectorAll('.book-card');
+        bookCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                const url = this.dataset.bookUrl;
+                if (url) {
+                    window.location.href = url;
+                }
+            });
+        });
+
+        // Для списка
+        const bookListItems = document.querySelectorAll('.book-list-item');
+        bookListItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                const url = this.dataset.bookUrl;
+                if (url) {
+                    window.location.href = url;
+                }
+            });
+        });
+    });
+
+    // Сохраняем выбранный вид в localStorage и обновляем URL
+    function setViewMode(mode) {
+        localStorage.setItem('bookViewMode', mode);
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('view', mode);
+        currentUrl.searchParams.set('page', '1');
+        window.location.href = currentUrl.toString();
+    }
+
+    // При загрузке страницы восстанавливаем вид из localStorage, если в URL нет параметра view
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentView = urlParams.get('view');
+
+        if (!currentView) {
+            const savedView = localStorage.getItem('bookViewMode');
+            if (savedView && (savedView === 'grid' || savedView === 'list')) {
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('view', savedView);
+                window.location.href = newUrl.toString();
+            }
+        } else {
+            localStorage.setItem('bookViewMode', currentView);
+        }
+    });
+
+    // Чекбоксы и массовое удаление
     document.addEventListener('DOMContentLoaded', function() {
         const checkboxes = document.querySelectorAll('.book-checkbox');
         const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
@@ -410,17 +409,8 @@
             });
         }
     });
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const cards = document.querySelectorAll('.card-item');
-        cards.forEach((card, index) => {
-            const delay = (index % 12) * 0.1;
-            card.style.animationDelay = `${delay}s`;
-        });
-    });
-</script>
-<script>
+
+    // Обновление статуса
     document.addEventListener('DOMContentLoaded', function() {
         const statusSelects = document.querySelectorAll('.status-select');
 
@@ -444,15 +434,6 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        const badge = selectElement.closest('.card')?.querySelector('.badge') || selectElement.closest('.list-group-item')?.querySelector('.badge');
-                        if (badge) {
-                            let newText = '';
-                            if (newStatus === 'read') newText = '{% if user_language == 'en' %}Read{% else %}Прочитано{% endif %}';
-                            else if (newStatus === 'reading') newText = '{% if user_language == 'en' %}Reading{% else %}В процессе{% endif %}';
-                            else if (newStatus === 'unread') newText = '{% if user_language == 'en' %}Unread{% else %}Непрочитано{% endif %}';
-                            else if (newStatus === 'abandoned') newText = '{% if user_language == 'en' %}Abandoned{% else %}Брошено{% endif %}';
-                            badge.innerText = newText;
-                        }
                         selectElement.style.borderColor = '#28a745';
                         setTimeout(() => { selectElement.style.borderColor = ''; }, 1000);
                     } else {

@@ -11,7 +11,8 @@ class BookForm(forms.ModelForm):
             'title', 'author', 'genre', 'status',
             'cover_image', 'description', 'rating',
             'date_started', 'date_finished',
-            'format', 'notes', 'quotes', 'series', 'series_number'
+            'format', 'notes', 'quotes', 'series', 'series_number', 'mood',
+            'music_url', 'music_title'  # ← ДОБАВЛЕНО
         ]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
@@ -25,8 +26,11 @@ class BookForm(forms.ModelForm):
             'status': forms.Select(attrs={'class': 'form-select'}),
             'cover_image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'quotes': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'mood': forms.Select(attrs={'class': 'form-select'}),
             'format': forms.Select(attrs={'class': 'form-select'}),
             'rating': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 5, 'step': 1}),
+            'music_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://youtube.com/... или https://open.spotify.com/...'}),
+            'music_title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Название трека или плейлиста'}),
         }
 
     def __init__(self, *args, **kwargs):

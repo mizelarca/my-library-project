@@ -1,0 +1,243 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+{% load book_filters %}
+
+{% block title %}{% if user_language == 'en' %}How it works{% else %}Как это работает{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <h1 class="mb-4" style="font-family: 'Great Vibes', cursive; color: #3e2c1f;">
+                {% if user_language == 'en' %}How it works{% else %}Как это работает{% endif %}
+            </h1>
+            
+<div class="p-3 rounded mb-4" style="background-color: #f8f5f0;">
+    <i class="bi bi-lightbulb me-2"></i>
+    {% if user_language == 'en' %}
+        Here you can learn about all the features of your personal library.
+    {% else %}
+        Здесь вы можете узнать обо всех возможностях вашей личной библиотеки.
+    {% endif %}
+</div>
+            
+            <!-- Содержание -->
+            <div class="p-3 rounded mb-4" style="background-color: #f8f5f0;">
+                <h5 class="mb-3">{% if user_language == 'en' %}Contents{% else %}Содержание{% endif %}</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="mb-0">
+                            <li><a href="#books">{% if user_language == 'en' %}Books{% else %}Книги{% endif %}</a></li>
+                            <li><a href="#collections">{% if user_language == 'en' %}Collections{% else %}Коллекции{% endif %}</a></li>
+                            <li><a href="#timer">{% if user_language == 'en' %}Reading Timer{% else %}Таймер чтения{% endif %}</a></li>
+                            <li><a href="#heatmap">{% if user_language == 'en' %}Heatmap{% else %}Тепловая карта{% endif %}</a></li>
+                            <li><a href="#mood">{% if user_language == 'en' %}Book Mood{% else %}Настроение книги{% endif %}</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="mb-0">
+                            <li><a href="#music">{% if user_language == 'en' %}Music for books{% else %}Музыка к книге{% endif %}</a></li>
+                            <li><a href="#random">{% if user_language == 'en' %}Random book{% else %}Что почитать{% endif %}</a></li>
+                            <li><a href="#quotes">{% if user_language == 'en' %}Random quote{% else %}Случайная цитата{% endif %}</a></li>
+                            <li><a href="#stats">{% if user_language == 'en' %}Statistics{% else %}Статистика{% endif %}</a></li>
+                            <li><a href="#export">{% if user_language == 'en' %}Export/Import{% else %}Экспорт/Импорт{% endif %}</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Книги -->
+            <div id="books" class="p-3 rounded mb-4" style="background-color: #f8f5f0;">
+                <h3>{% if user_language == 'en' %}Books{% else %}Книги{% endif %}</h3>
+                <p>{% if user_language == 'en' %}The main section of your library. Here you can:{% else %}Основной раздел вашей библиотеки. Здесь вы можете:{% endif %}</p>
+                <ul>
+                    <li>{% if user_language == 'en' %}Add new books with cover images{% else %}Добавлять новые книги с обложками{% endif %}</li>
+                    <li>{% if user_language == 'en' %}Edit book information (title, author, genre, description){% else %}Редактировать информацию о книге (название, автор, жанр, описание){% endif %}</li>
+                    <li>{% if user_language == 'en' %}Rate books from 0 to 5 stars{% else %}Оценивать книги от 0 до 5 звёзд{% endif %}</li>
+                    <li>{% if user_language == 'en' %}Track reading dates (start and finish){% else %}Отслеживать даты чтения (начало и окончание){% endif %}</li>
+                    <li>{% if user_language == 'en' %}Add personal notes and quotes{% else %}Добавлять личные заметки и цитаты{% endif %}</li>
+                    <li>{% if user_language == 'en' %}Change book status (Unread, Reading, Read, Abandoned){% else %}Менять статус книги (Непрочитано, В процессе, Прочитано, Брошено){% endif %}</li>
+                </ul>
+                <div class="mt-2 p-2 rounded" style="background-color: #e6d7c4;">
+                    <small>💡 {% if user_language == 'en' %}Tip:{% else %}Совет:{% endif %}</small>
+                    <small class="text-muted">
+                        {% if user_language == 'en' %}
+                            Use search, filters and sorting to quickly find the books you need.
+                        {% else %}
+                            Используйте поиск, фильтры и сортировку для быстрого поиска нужных книг.
+                        {% endif %}
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Коллекции -->
+            <div id="collections" class="p-3 rounded mb-4" style="background-color: #f8f5f0;">
+                <h3>{% if user_language == 'en' %}Collections{% else %}Коллекции{% endif %}</h3>
+                <p>{% if user_language == 'en' %}Create thematic collections of books:{% else %}Создавайте тематические подборки книг:{% endif %}</p>
+                <ul>
+                    <li>{% if user_language == 'en' %}Create collections (e.g., "Books for summer", "Classics"){% else %}Создавайте коллекции (например, "Книги на лето", "Классика"){% endif %}</li>
+                    <li>{% if user_language == 'en' %}Add multiple books at once{% else %}Добавляйте сразу несколько книг{% endif %}</li>
+                    <li>{% if user_language == 'en' %}Manually arrange book order inside a collection{% else %}Вручную устанавливайте порядок книг внутри коллекции{% endif %}</li>
+                </ul>
+            </div>
+            
+            <!-- Таймер чтения -->
+            <div id="timer" class="p-3 rounded mb-4" style="background-color: #f8f5f0;">
+                <h3>{% if user_language == 'en' %}Reading Timer{% else %}Таймер чтения{% endif %}</h3>
+                <p>{% if user_language == 'en' %}Track exactly how much time you spend reading:{% else %}Точно отслеживайте, сколько времени вы читаете:{% endif %}</p>
+                <ul>
+                    <li>{% if user_language == 'en' %}Start the timer when you begin reading{% else %}Включайте таймер, когда начинаете читать{% endif %}</li>
+                    <li>{% if user_language == 'en' %}Pause when you take a break{% else %}Ставьте на паузу, когда отвлекаетесь{% endif %}</li>
+                    <li>{% if user_language == 'en' %}Stop to save the session{% else %}Останавливайте, чтобы сохранить сессию{% endif %}</li>
+                    <li>{% if user_language == 'en' %}Add time manually if you forgot to turn on the timer{% else %}Добавляйте время вручную, если забыли включить таймер{% endif %}</li>
+                    <li>{% if user_language == 'en' %}View your recent sessions (last 30 days){% else %}Смотрите последние сессии (за 30 дней){% endif %}</li>
+                    <li>{% if user_language == 'en' %}Delete individual sessions or reset all time{% else %}Удаляйте отдельные сессии или сбрасывайте всё время{% endif %}</li>
+                </ul>
+            </div>
+            
+<!-- Тепловая карта -->
+<div id="heatmap" class="p-3 rounded mb-4" style="background-color: #f8f5f0;">
+    <h3>{% if user_language == 'en' %}Heatmap{% else %}Тепловая карта{% endif %}</h3>
+    <p>{% if user_language == 'en' %}Visualization of your reading activity:{% else %}Визуализация вашей активности чтения:{% endif %}</p>
+    <ul>
+        <li>{% if user_language == 'en' %}Shows which days of the week you read most often{% else %}Показывает, в какие дни недели вы читаете чаще всего{% endif %}</li>
+        <li>{% if user_language == 'en' %}Shows which hours of the day you read most often{% else %}Показывает, в какие часы суток вы читаете чаще всего{% endif %}</li>
+        <li>{% if user_language == 'en' %}Data is collected from two sources:{% else %}Данные собираются из двух источников:{% endif %}</li>
+        <ul class="mb-2">
+            <li>{% if user_language == 'en' %}Reading timer — exact minutes per session (real time){% else %}Таймер чтения — точные минуты каждой сессии (реальное время){% endif %}</li>
+            <li>{% if user_language == 'en' %}Finished books — +60 minutes per book at the time it was added to your library{% else %}Прочитанные книги — +60 минут за каждую книгу в то время, когда она была добавлена в библиотеку{% endif %}</li>
+        </ul>
+        <li>{% if user_language == 'en' %}The darker the cell, the more you read at that time{% else %}Чем темнее ячейка, тем больше вы читали в это время{% endif %}</li>
+        <li>{% if user_language == 'en' %}The maximum value in the entire table becomes 100% color saturation{% else %}Максимальное значение во всей таблице становится 100% насыщенности цвета{% endif %}</li>
+    </ul>
+    <div class="mt-2 p-2 rounded" style="background-color: #e6d7c4;">
+        <small>💡 {% if user_language == 'en' %}Tip:{% else %}Совет:{% endif %}</small>
+        <small class="text-muted">
+            {% if user_language == 'en' %}
+                Use the heatmap to find your most productive reading hours!
+            {% else %}
+                Используйте тепловую карту, чтобы найти свои самые продуктивные часы для чтения!
+            {% endif %}
+        </small>
+    </div>
+</div>
+            
+<!-- Настроение книги -->
+<div id="mood" class="p-3 rounded mb-4" style="background-color: #f8f5f0;">
+    <h3>🎭 {% if user_language == 'en' %}Book Mood{% else %}Настроение книги{% endif %}</h3>
+    <p>{% if user_language == 'en' %}Choose an emoji that reflects your impression of the book:{% else %}Выберите эмодзи, отражающий ваше впечатление от книги:{% endif %}</p>
+    <div class="row text-center mb-3">
+        <div class="col-6 col-md-3 mb-2">😢 {% if user_language == 'en' %}Sad{% else %}Грустная{% endif %}</div>
+        <div class="col-6 col-md-3 mb-2">😂 {% if user_language == 'en' %}Funny{% else %}Смешная{% endif %}</div>
+        <div class="col-6 col-md-3 mb-2">🤯 {% if user_language == 'en' %}Shocking{% else %}Шокирующая{% endif %}</div>
+        <div class="col-6 col-md-3 mb-2">🥰 {% if user_language == 'en' %}Cozy{% else %}Уютная{% endif %}</div>
+        <div class="col-6 col-md-3 mb-2">🔥 {% if user_language == 'en' %}Exciting{% else %}Захватывающая{% endif %}</div>
+        <div class="col-6 col-md-3 mb-2">🤔 {% if user_language == 'en' %}Thoughtful{% else %}Заставляет думать{% endif %}</div>
+        <div class="col-6 col-md-3 mb-2">🎯 {% if user_language == 'en' %}Useful{% else %}Полезная{% endif %}</div>
+        <div class="col-6 col-md-3 mb-2">😌 {% if user_language == 'en' %}Calming{% else %}Успокаивающая{% endif %}</div>
+        <div class="col-6 col-md-3 mb-2">🤬 {% if user_language == 'en' %}Angry{% else %}Бесила{% endif %}</div>
+        <div class="col-6 col-md-3 mb-2">🎨 {% if user_language == 'en' %}Beautiful{% else %}Визуально красивая{% endif %}</div>
+    </div>
+    <ul>
+        <li>{% if user_language == 'en' %}The mood is displayed in the book list and on the book page{% else %}Настроение отображается в списке книг и на странице книги{% endif %}</li>
+        <li>{% if user_language == 'en' %}Helps you remember your emotional impression of the book{% else %}Помогает запомнить ваше эмоциональное впечатление от книги{% endif %}</li>
+    </ul>
+</div>
+            
+            <!-- Музыка к книге -->
+            <div id="music" class="p-3 rounded mb-4" style="background-color: #f8f5f0;">
+                <h3>{% if user_language == 'en' %}Music for Books{% else %}Музыка к книге{% endif %}</h3>
+                <p>{% if user_language == 'en' %}Add a link to a track or playlist that creates the reading atmosphere:{% else %}Добавьте ссылку на трек или плейлист, создающий атмосферу для чтения:{% endif %}</p>
+                <ul>
+                    <li>{% if user_language == 'en' %}Supports YouTube, Spotify, SoundCloud, VK, Yandex.Music{% else %}Поддерживается YouTube, Spotify, SoundCloud, VK, Яндекс.Музыка{% endif %}</li>
+                    <li>{% if user_language == 'en' %}Icon appears in the book list if music is added{% else %}Иконка появляется в списке книг, если музыка добавлена{% endif %}</li>
+                </ul>
+            </div>
+            
+            <!-- Что почитать (рандомная книга) -->
+            <div id="random" class="p-3 rounded mb-4" style="background-color: #f8f5f0;">
+                <h3>{% if user_language == 'en' %}What to read?{% else %}Что почитать?{% endif %}</h3>
+                <p>{% if user_language == 'en' %}A special button on the main page and in the dashboard that selects a random unread book from your library:{% else %}Специальная кнопка на главной странице и в личном кабинете, которая выбирает случайную непрочитанную книгу из вашей библиотеки:{% endif %}</p>
+                <ul>
+                    <li>{% if user_language == 'en' %}Selects only books with status Unread or Reading{% else %}Выбирает только книги со статусом Непрочитано или В процессе{% endif %}</li>
+                    <li>{% if user_language == 'en' %}Shows the cover, title, author and current status{% else %}Показывает обложку, название, автора и текущий статус{% endif %}</li>
+                    <li>{% if user_language == 'en' %}If there are no unread books, it will notify you{% else %}Если нет непрочитанных книг, сообщит об этом{% endif %}</li>
+                    <li>{% if user_language == 'en' %}Great for when you don't know what to read next!{% else %}Отлично подходит, когда не знаете, что почитать дальше!{% endif %}</li>
+                </ul>
+            </div>
+            
+            <!-- Случайная цитата -->
+            <div id="quotes" class="p-3 rounded mb-4" style="background-color: #f8f5f0;">
+                <h3>{% if user_language == 'en' %}Random quote{% else %}Случайная цитата{% endif %}</h3>
+                <p>{% if user_language == 'en' %}On the main page, a random quote from your library appears:{% else %}На главной странице появляется случайная цитата из вашей библиотеки:{% endif %}</p>
+                <ul>
+                    <li>{% if user_language == 'en' %}Quotes can be added when editing a book (field "Quotes"){% else %}Цитаты можно добавлять при редактировании книги (поле "Цитаты"){% endif %}</li>
+                    <li>{% if user_language == 'en' %}Each quote is tied to a specific book{% else %}Каждая цитата привязана к конкретной книге{% endif %}</li>
+                    <li>{% if user_language == 'en' %}Clicking on a quote takes you to the book page{% else %}При клике на цитату открывается страница книги{% endif %}</li>
+                    <li>{% if user_language == 'en' %}The quote changes every time you refresh the page{% else %}Цитата меняется при каждом обновлении страницы{% endif %}</li>
+                </ul>
+            </div>
+            
+            <!-- Статистика -->
+            <div id="stats" class="p-3 rounded mb-4" style="background-color: #f8f5f0;">
+                <h3>{% if user_language == 'en' %}Statistics{% else %}Статистика{% endif %}</h3>
+                <p>{% if user_language == 'en' %}Personal Dashboard shows:{% else %}Личный кабинет показывает:{% endif %}</p>
+                <ul>
+                    <li>{% if user_language == 'en' %}Total number of books in your library{% else %}Общее количество книг в библиотеке{% endif %}</li>
+                    <li>{% if user_language == 'en' %}Status distribution (pie chart){% else %}Распределение по статусам (круговая диаграмма){% endif %}</li>
+                    <li>{% if user_language == 'en' %}Monthly reading chart{% else %}График чтения по месяцам{% endif %}</li>
+                    <li>{% if user_language == 'en' %}Reading challenge (goal for the year){% else %}Книжный вызов (цель на год){% endif %}</li>
+                    <li>{% if user_language == 'en' %}Top 3 favorite authors, genres and best books{% else %}Топ-3 любимых авторов, жанров и лучших книг{% endif %}</li>
+                </ul>
+            </div>
+            
+            <!-- Экспорт/Импорт -->
+            <div id="export" class="p-3 rounded mb-4" style="background-color: #f8f5f0;">
+                <h3>{% if user_language == 'en' %}Export and Import{% else %}Экспорт и Импорт{% endif %}</h3>
+                <p>{% if user_language == 'en' %}Export your library to a file or import previously saved data:{% else %}Экспортируйте вашу библиотеку в файл или импортируйте ранее сохранённые данные:{% endif %}</p>
+                <ul>
+                    <li>{% if user_language == 'en' %}Export to CSV (UTF-8) and Excel XLSX{% else %}Экспорт в CSV (UTF-8) и Excel XLSX{% endif %}</li>
+                    <li>{% if user_language == 'en' %}Import from CSV and XLSX files{% else %}Импорт из CSV и XLSX файлов{% endif %}</li>
+                    <li>{% if user_language == 'en' %}Authors and genres are created automatically{% else %}Авторы и жанры создаются автоматически{% endif %}</li>
+                </ul>
+            </div>
+            
+            <!-- Кнопка назад -->
+            <div class="text-center mt-4">
+                <a href="javascript:history.back()" class="btn" style="background-color: #797b3a; color: white; border-radius: 50px; padding: 0.5rem 1.5rem;">
+                    ← {% if user_language == 'en' %}Back{% else %}Назад{% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Тёмная тема */
+    body.dark-theme .p-3,
+    body.dark-theme .p-4,
+    body.dark-theme .alert {
+        background-color: #3a2e26 !important;
+        color: #e6d7c4;
+    }
+    body.dark-theme h1,
+    body.dark-theme h3,
+    body.dark-theme h5 {
+        color: #e6d7c4 !important;
+    }
+    body.dark-theme .text-muted {
+        color: #b0a088 !important;
+    }
+    body.dark-theme .alert-info {
+        background-color: #2a4a5a !important;
+        border-color: #3a6a7a !important;
+        color: #e6d7c4 !important;
+    }
+    body.dark-theme a {
+        color: #d48a00 !important;
+    }
+    body.dark-theme .btn {
+        color: white !important;
+    }
+</style>
+{% endblock %}

@@ -9,12 +9,13 @@
     <form method="post" enctype="multipart/form-data" class="book-form">
         {% csrf_token %}
 
+        <!-- Название книги -->
         <div class="mb-3">
             <label for="{{ form.title.id_for_label }}" class="form-label">{% if user_language == 'en' %}Book title{% else %}Название книги{% endif %}</label>
             {{ form.title }}
         </div>
 
-        <!-- Поле Автор -->
+        <!-- Автор -->
         <div class="mb-3 row">
             <div class="col-md-8 col-8">
                 <label for="{{ form.author.id_for_label }}" class="form-label">{% if user_language == 'en' %}Author{% else %}Автор{% endif %}</label>
@@ -25,7 +26,7 @@
             </div>
         </div>
 
-        <!-- Поле Жанр -->
+        <!-- Жанр -->
         <div class="mb-3 row">
             <div class="col-md-8 col-8">
                 <label for="{{ form.genre.id_for_label }}" class="form-label">{% if user_language == 'en' %}Genre{% else %}Жанр{% endif %}</label>
@@ -36,15 +37,28 @@
             </div>
         </div>
 
+        <!-- Статус -->
         <div class="mb-3">
             <label for="{{ form.status.id_for_label }}" class="form-label">{% if user_language == 'en' %}Status{% else %}Статус{% endif %}</label>
             {{ form.status }}
         </div>
 
-        <!-- Блок обложки -->
+        <!-- Оценка (рейтинг) -->
+        <div class="mb-3">
+            <label class="form-label">{% if user_language == 'en' %}Rating{% else %}Оценка{% endif %}</label>
+            <div class="rating-input">
+                <input type="hidden" name="rating" id="rating" value="{{ form.rating.value|default:0 }}">
+                <span class="star" data-value="1">★</span>
+                <span class="star" data-value="2">★</span>
+                <span class="star" data-value="3">★</span>
+                <span class="star" data-value="4">★</span>
+                <span class="star" data-value="5">★</span>
+            </div>
+        </div>
+
+        <!-- Обложка -->
         <div class="mb-3">
             <label class="form-label">{% if user_language == 'en' %}Cover{% else %}Обложка{% endif %}</label>
-
             {% if form.instance.cover_image %}
                 <div class="mb-2 p-2 rounded" style="background-color: #e6d7c4;">
                     <div class="d-flex align-items-center gap-3 flex-wrap">
@@ -56,55 +70,21 @@
                     </div>
                 </div>
             {% endif %}
-
             <div class="mt-2">
                 <input type="file" name="cover_image" accept="image/*" class="form-control" id="id_cover_image">
             </div>
         </div>
 
+        <!-- Формат -->
+        <div class="mb-3">
+            <label for="{{ form.format.id_for_label }}" class="form-label">{% if user_language == 'en' %}Format{% else %}Формат{% endif %}</label>
+            {{ form.format }}
+        </div>
+
+        <!-- Описание -->
         <div class="mb-3">
             <label for="{{ form.description.id_for_label }}" class="form-label">{% if user_language == 'en' %}Description{% else %}Описание{% endif %}</label>
             {{ form.description }}
-        </div>
-
-        
-<!-- Дополнительные поля -->
-<div class="mb-3">
-    <label for="{{ form.format.id_for_label }}" class="form-label">{% if user_language == 'en' %}Format{% else %}Формат{% endif %}</label>
-    {{ form.format }}
-</div>
-
-<div class="mb-3">
-    <label for="{{ form.series.id_for_label }}" class="form-label">{% if user_language == 'en' %}Series{% else %}Серия{% endif %}</label>
-    {{ form.series }}
-</div>
-
-<div class="mb-3">
-    <label for="{{ form.series_number.id_for_label }}" class="form-label">{% if user_language == 'en' %}Series number{% else %}Номер в серии{% endif %}</label>
-    {{ form.series_number }}
-</div>
-
-<div class="mb-3">
-    <label for="{{ form.notes.id_for_label }}" class="form-label">{% if user_language == 'en' %}Personal notes{% else %}Личные заметки{% endif %}</label>
-    <textarea name="notes" id="{{ form.notes.id_for_label }}" class="form-control" rows="3">{% if form.notes.value %}{{ form.notes.value }}{% endif %}</textarea>
-</div>
-
-<div class="mb-3">
-    <label for="{{ form.quotes.id_for_label }}" class="form-label">{% if user_language == 'en' %}Quotes{% else %}Цитаты{% endif %}</label>
-    {{ form.quotes }}
-</div>
-
-        <!-- Поле рейтинга -->
-        <div class="mb-3">
-            <label class="form-label">{% if user_language == 'en' %}Rating{% else %}Оценка{% endif %}</label>
-            <div class="rating-input">
-                <input type="hidden" name="rating" id="rating" value="{{ form.rating.value|default:0 }}">
-                <span class="star" data-value="1">★</span>
-                <span class="star" data-value="2">★</span>
-                <span class="star" data-value="3">★</span>
-                <span class="star" data-value="4">★</span>
-                <span class="star" data-value="5">★</span>
-            </div>
         </div>
 
         <!-- Даты чтения -->
@@ -118,6 +98,51 @@
             {{ form.date_finished }}
         </div>
 
+        <!-- Серия -->
+        <div class="mb-3">
+            <label for="{{ form.series.id_for_label }}" class="form-label">{% if user_language == 'en' %}Series{% else %}Серия{% endif %}</label>
+            {{ form.series }}
+        </div>
+
+        <!-- Номер в серии -->
+        <div class="mb-3">
+            <label for="{{ form.series_number.id_for_label }}" class="form-label">{% if user_language == 'en' %}Series number{% else %}Номер в серии{% endif %}</label>
+            {{ form.series_number }}
+        </div>
+
+        <!-- Личные заметки -->
+        <div class="mb-3">
+            <label for="{{ form.notes.id_for_label }}" class="form-label">{% if user_language == 'en' %}Personal notes{% else %}Личные заметки{% endif %}</label>
+            <textarea name="notes" id="{{ form.notes.id_for_label }}" class="form-control" rows="3">{% if form.notes.value %}{{ form.notes.value }}{% endif %}</textarea>
+        </div>
+
+        <!-- Цитаты -->
+        <div class="mb-3">
+            <label for="{{ form.quotes.id_for_label }}" class="form-label">{% if user_language == 'en' %}Quotes{% else %}Цитаты{% endif %}</label>
+            {{ form.quotes }}
+        </div>
+
+        <!-- Настроение -->
+        <div class="mb-3">
+            <label for="{{ form.mood.id_for_label }}" class="form-label">{% if user_language == 'en' %}Mood{% else %}Настроение{% endif %}</label>
+            {{ form.mood }}
+            <div class="form-text text-muted">{% if user_language == 'en' %}What emotions did this book evoke?{% else %}Какие эмоции вызвала книга?{% endif %}</div>
+        </div>
+
+        <!-- Музыка к книге -->
+        <div class="mb-3">
+            <label for="{{ form.music_url.id_for_label }}" class="form-label">{% if user_language == 'en' %}Music link{% else %}Ссылка на музыку{% endif %}</label>
+            {{ form.music_url }}
+            <div class="form-text text-muted">{% if user_language == 'en' %}YouTube, Spotify, SoundCloud, etc.{% else %}YouTube, Spotify, SoundCloud и др.{% endif %}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.music_title.id_for_label }}" class="form-label">{% if user_language == 'en' %}Track/playlist title{% else %}Название трека или плейлиста{% endif %}</label>
+            {{ form.music_title }}
+            <div class="form-text text-muted">{% if user_language == 'en' %}Optional{% else %}Необязательно{% endif %}</div>
+        </div>
+
+        <!-- Кнопки -->
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">{% if user_language == 'en' %}Save{% else %}Сохранить{% endif %}</button>
             <a href="{% url 'book_list' %}" class="btn btn-secondary">{% if user_language == 'en' %}Cancel{% else %}Отмена{% endif %}</a>
@@ -142,7 +167,6 @@
         color: #ffc107;
     }
 
-    /* Стили для кнопок "Новый автор/жанр" */
     .book-form .btn-outline-primary {
         text-align: center;
         white-space: normal;
@@ -183,7 +207,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Звезды рейтинга
         const stars = document.querySelectorAll('.rating-input .star');
         const hiddenInput = document.getElementById('rating');
         let currentRating = parseInt(hiddenInput.value) || 0;
