@@ -1085,3 +1085,7 @@ def heatmap_view(request):
 def help_page(request):
     """Страница с пояснениями как работает сайт"""
     return render(request, 'catalog/help.html')
+
+def help_public(request):
+    """Публичная страница с пояснениями (без регистрации)"""
+    return render(request, 'catalog/help_public.html')

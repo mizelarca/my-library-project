@@ -11,6 +11,7 @@ urlpatterns = [
     path('timer/', views.timer_page, name='timer_page'),
     path('book/<int:book_id>/edit/', views.book_edit, name='book_edit'),
     path('heatmap/', views.heatmap_view, name='heatmap'),
+    path('about/', views.help_public, name='help_public'),
     path('book/<int:book_id>/delete/', views.book_delete, name='book_delete'),
     path('books/bulk-delete/', views.bulk_delete_books, name='bulk_delete_books'),
     path('api/timer/reset/<int:book_id>/', views.timer_reset_all, name='timer_reset_all'),

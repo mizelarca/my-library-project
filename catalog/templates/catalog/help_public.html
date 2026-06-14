@@ -1,0 +1,146 @@
+{% extends 'catalog/base.html' %}
+{% load static %}
+{% load book_filters %}
+
+{% block title %}{% if user_language == 'en' %}How it works{% else %}Как это работает{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <h1 class="mb-4 text-center" style="font-family: 'Great Vibes', cursive; color: #3e2c1f;">
+                {% if user_language == 'en' %}How it works{% else %}Как это работает{% endif %}
+            </h1>
+            
+            <div class="p-3 rounded mb-4 text-center" style="background-color: #e6d7c4;">
+                <i class="bi bi-lightbulb me-2"></i>
+                {% if user_language == 'en' %}
+                    Learn about all the features of your future personal library.
+                {% else %}
+                    Узнайте обо всех возможностях вашей будущей личной библиотеки.
+                {% endif %}
+            </div>
+            
+            <!-- Основные возможности -->
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <div class="p-3 rounded h-100" style="background-color: #e6d7c4;">
+                        <h3 class="text-center">{% if user_language == 'en' %}Books{% else %}Книги{% endif %}</h3>
+                        <ul>
+                            <li>{% if user_language == 'en' %}Add, edit and delete books{% else %}Добавление, редактирование и удаление книг{% endif %}</li>
+                            <li>{% if user_language == 'en' %}Upload covers and avatars{% else %}Загрузка обложек и аватаров{% endif %}</li>
+                            <li>{% if user_language == 'en' %}Rating from 0 to 5 stars{% else %}Рейтинг от 0 до 5 звёзд{% endif %}</li>
+                            <li>{% if user_language == 'en' %}Personal notes and quotes{% else %}Личные заметки и цитаты{% endif %}</li>
+                            <li>{% if user_language == 'en' %}Reading start and finish dates{% else %}Дата начала и окончания чтения{% endif %}</li>
+                        </ul>
+                    </div>
+                </div>
+
+<div class="col-md-6 mb-3">
+    <div class="p-3 rounded h-100" style="background-color: #e6d7c4;">
+        <h3 class="text-center">{% if user_language == 'en' %}Book Mood{% else %}Настроение книги{% endif %}</h3>
+        <p class="text-center">{% if user_language == 'en' %}Choose an emoji that reflects your impression:{% else %}Выберите эмодзи, отражающий ваше впечатление:{% endif %}</p>
+        <div class="text-center">
+            <span class="d-inline-block me-3 mb-2">😢 Грустная</span>
+            <span class="d-inline-block me-3 mb-2">😂 Смешная</span>
+            <span class="d-inline-block me-3 mb-2">🔥 Захватывающая</span>
+            <span class="d-inline-block me-3 mb-2">🥰 Уютная</span>
+            <span class="d-inline-block me-3 mb-2">🤔 Заставляет думать</span>
+            <span class="d-inline-block me-3 mb-2">🎯 Полезная</span>
+            <span class="d-inline-block mt-2 text-muted">{% if user_language == 'en' %}...and others{% else %}...и другие{% endif %}</span>
+        </div>
+    </div>
+</div>
+
+                <div class="col-md-6 mb-3">
+                    <div class="p-3 rounded h-100" style="background-color: #e6d7c4;">
+                        <h3 class="text-center">{% if user_language == 'en' %}Reading Timer{% else %}Таймер чтения{% endif %}</h3>
+                        <ul>
+                            <li>{% if user_language == 'en' %}Track reading time with seconds accuracy{% else %}Отслеживание времени чтения с точностью до секунды{% endif %}</li>
+                            <li>{% if user_language == 'en' %}Start, Pause, Stop buttons{% else %}Кнопки Старт, Пауза, Стоп{% endif %}</li>
+                            <li>{% if user_language == 'en' %}Manual time addition{% else %}Ручное добавление времени{% endif %}</li>
+                            <li>{% if user_language == 'en' %}Session history for 30 days{% else %}История сессий за 30 дней{% endif %}</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="p-3 rounded h-100" style="background-color: #e6d7c4;">
+                        <h3 class="text-center">{% if user_language == 'en' %}Heatmap{% else %}Тепловая карта{% endif %}</h3>
+                        <ul>
+                            <li>{% if user_language == 'en' %}Shows reading activity by day and hour{% else %}Показывает активность по дням и часам{% endif %}</li>
+                            <li>{% if user_language == 'en' %}Data from timer and finished books{% else %}Данные из таймера и прочитанных книг{% endif %}</li>
+                            <li>{% if user_language == 'en' %}Darker color = more reading{% else %}Темнее цвет = больше чтения{% endif %}</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="p-3 rounded h-100" style="background-color: #e6d7c4;">
+                        <h3 class="text-center">{% if user_language == 'en' %}Statistics{% else %}Статистика{% endif %}</h3>
+                        <ul>
+                            <li>{% if user_language == 'en' %}Status distribution (pie chart){% else %}Распределение по статусам{% endif %}</li>
+                            <li>{% if user_language == 'en' %}Monthly reading chart{% else %}График чтения по месяцам{% endif %}</li>
+                            <li>{% if user_language == 'en' %}Reading challenge (yearly goal){% else %}Книжный вызов (цель на год){% endif %}</li>
+                            <li>{% if user_language == 'en' %}Top 3 authors, genres, best books{% else %}Топ-3 авторов, жанров, лучших книг{% endif %}</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="p-3 rounded h-100" style="background-color: #e6d7c4;">
+                        <h3 class="text-center">{% if user_language == 'en' %}Music for Books{% else %}Музыка к книге{% endif %}</h3>
+                        <ul>
+                            <li>{% if user_language == 'en' %}Add YouTube, Spotify, SoundCloud links{% else %}Добавление ссылок YouTube, Spotify, SoundCloud{% endif %}</li>
+                            <li>{% if user_language == 'en' %}Embedded player on the book page{% else %}Встроенный плеер на странице книги{% endif %}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Кнопки регистрации и входа -->
+            <div class="p-4 rounded text-center mb-4" style="background-color: #e6d7c4;">
+                <h3 class="mb-3 text-center">{% if user_language == 'en' %}Ready to start?{% else %}Готовы начать?{% endif %}</h3>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="{% url 'register' %}" class="btn btn-primary btn-lg" style="background-color: #797b3a; border-color: #797b3a; border-radius: 50px; padding: 0.6rem 1.8rem;">
+                        {% if user_language == 'en' %}Register{% else %}Зарегистрироваться{% endif %}
+                    </a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg" style="border-color: #a58d76; color: #a58d76; border-radius: 50px; padding: 0.6rem 1.8rem;">
+                        {% if user_language == 'en' %}Login{% else %}Войти{% endif %}
+                    </a>
+                </div>
+                <p class="mt-3 text-muted small">
+                    {% if user_language == 'en' %}
+                        Already have an account? Login to access your library.
+                    {% else %}
+                        Уже есть аккаунт? Войдите, чтобы получить доступ к своей библиотеке.
+                    {% endif %}
+                </p>
+            </div>
+            
+            <!-- Кнопка назад -->
+            <div class="text-center mt-2">
+                <a href="javascript:history.back()" class="btn" style="background-color: #d1c4b3; color: #3e2c1f; border-radius: 50px; padding: 0.5rem 1.5rem;">
+                    ← {% if user_language == 'en' %}Back{% else %}Назад{% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body.dark-theme .p-3,
+    body.dark-theme .p-4 {
+        background-color: #3a2e26 !important;
+        color: #e6d7c4;
+    }
+    body.dark-theme h1,
+    body.dark-theme h3 {
+        color: #e6d7c4 !important;
+    }
+    body.dark-theme .text-muted {
+        color: #b0a088 !important;
+    }
+    body.dark-theme .btn-outline-secondary {
+        border-color: #a58d76 !important;
+        color: #e6d7c4 !important;
+    }
+</style>
+{% endblock %}
